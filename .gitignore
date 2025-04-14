@@ -1,1 +1,37 @@
+# Arquivos de ambiente
 .env
+.env.local
+.env.*.local
+
+# Arquivos de cache
+/cache/
+*.cache
+
+# Arquivos de configuração local
+config.local.php
+config.php
+
+# Arquivos temporários
+/tmp/
+*.tmp
+*.log
+
+# Dependências (se estiver usando composer)
+/vendor/
+composer.lock
+
+# IDEs e editores
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos específicos de desenvolvimento
+phpunit.xml
+phpunit.xml.dist

@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'yourvendor/cybersecurity-blog',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => null,
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => 'f63e03ac4c5af4cc6b1ee3a377e5352b48fa679b',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -89,9 +89,9 @@
             'dev_requirement' => false,
         ),
         'yourvendor/cybersecurity-blog' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => null,
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => 'f63e03ac4c5af4cc6b1ee3a377e5352b48fa679b',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
