@@ -12,6 +12,593 @@
     --transition: all 0.3s ease;
 }
 
+/* Preloader overlay - completely revised */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #000;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+    opacity: 1;
+    visibility: visible;
+    overflow: hidden;
+    perspective: 1000px;
+}
+
+/* Background com distorção psicodélica */
+#preloader::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+                circle at 30% 40%, 
+                rgba(255, 0, 255, 0.5), 
+                transparent 70%),
+                radial-gradient(
+                circle at 70% 60%, 
+                rgba(0, 255, 255, 0.5), 
+                transparent 70%),
+                linear-gradient(to bottom, 
+                rgba(0,0,0,0.9) 0%, 
+                rgba(0,20,20,0.8) 50%, 
+                rgba(0,0,0,0.9) 100%);
+    opacity: 0.9;
+    background-size: 200% 200%;
+    animation: gradientBG 8s ease infinite, distortBackground 15s ease-in-out infinite alternate;
+    filter: contrast(1.5) hue-rotate(0deg);
+}
+
+/* Efeito de escaneamento */
+#preloader::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, 
+                transparent, 
+                rgba(52, 152, 219, 0.8), 
+                #2ecc71, 
+                #3498db, 
+                transparent);
+    animation: scanner 2s linear infinite;
+    box-shadow: 0 0 20px #3498db, 0 0 40px #2ecc71;
+    z-index: 1;
+}
+
+/* Efeito de linhas de circuito */
+.circuit-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(90deg, transparent 95%, rgba(52, 152, 219, 0.2) 50%) 0 0 / 20px 20px,
+        linear-gradient(transparent 95%, rgba(46, 204, 113, 0.2) 50%) 0 0 / 20px 20px;
+    z-index: 0;
+}
+
+.preloader-content {
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    z-index: 2;
+    transform-style: preserve-3d;
+    animation: float3D 5s ease-in-out infinite;
+}
+
+/* Conteúdo do holográfico */
+.holo-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 40px;
+    transform-style: preserve-3d;
+}
+
+/* Círculo de tecnologia */
+.tech-circle {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid rgba(52, 152, 219, 0.6);
+    box-shadow: 0 0 30px rgba(52, 152, 219, 0.5), inset 0 0 30px rgba(52, 152, 219, 0.3);
+    animation: rotate3D 10s linear infinite;
+}
+
+.tech-circle::before, .tech-circle::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    border: 2px dashed rgba(46, 204, 113, 0.5);
+    animation: rotate3D-reverse 7s linear infinite;
+}
+
+.tech-circle::after {
+    top: 40px;
+    left: 40px;
+    right: 40px;
+    bottom: 40px;
+    border: 4px dotted rgba(155, 89, 182, 0.5);
+    animation: rotate3D 15s linear infinite;
+}
+
+/* Elemento giratório 3D hexágono */
+.hex-spinner {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: spin3D 8s linear infinite;
+}
+
+.hex-spinner .hex {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: linear-gradient(135deg, #3498db, #2ecc71, #9b59b6);
+    background-size: 300% 300%;
+    animation: gradientShift 8s ease infinite;
+    opacity: 0.15;
+}
+
+.hex-spinner .hex:nth-child(1) { transform: rotateY(0deg) translateZ(30px); }
+.hex-spinner .hex:nth-child(2) { transform: rotateY(60deg) translateZ(30px); }
+.hex-spinner .hex:nth-child(3) { transform: rotateY(120deg) translateZ(30px); }
+.hex-spinner .hex:nth-child(4) { transform: rotateY(180deg) translateZ(30px); }
+.hex-spinner .hex:nth-child(5) { transform: rotateY(240deg) translateZ(30px); }
+.hex-spinner .hex:nth-child(6) { transform: rotateY(300deg) translateZ(30px); }
+
+/* Anéis rotativos */
+.rotating-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: none;
+}
+
+.rotating-ring:nth-child(1) {
+    width: 180px;
+    height: 180px;
+    border-top: 3px solid rgba(52, 152, 219, 0.8);
+    border-right: 3px solid transparent;
+    animation: rotate 4s linear infinite;
+}
+
+.rotating-ring:nth-child(2) {
+    width: 150px;
+    height: 150px;
+    border-bottom: 3px solid rgba(46, 204, 113, 0.8);
+    border-left: 3px solid transparent;
+    animation: rotate-reverse 4s linear infinite;
+}
+
+.rotating-ring:nth-child(3) {
+    width: 120px;
+    height: 120px;
+    border-top: 3px solid rgba(155, 89, 182, 0.8);
+    border-left: 3px solid transparent;
+    animation: rotate 3s linear infinite;
+}
+
+/* Seção das bolhas reconfiguradas para efeito psicodélico/alucinógeno */
+#preloader .loading-bubbles {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    z-index: 3;
+    transform-style: preserve-3d;
+    perspective: 800px;
+    animation: wobble 20s ease-in-out infinite;
+}
+
+@keyframes wobble {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(5deg) scale(1.05) skew(5deg, 0deg); }
+    50% { transform: rotate(0deg) scale(1.1); }
+    75% { transform: rotate(-5deg) scale(1.05) skew(-5deg, 0deg); }
+}
+
+/* Efeito psicodélico nas bolhas */
+#preloader .bubble.psychedelic {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: conic-gradient(
+        #ff00cc, #3498db, #2ecc71, #f1c40f, #e74c3c, #9b59b6, #ff00cc
+    );
+    background-size: 400% 400%;
+    animation: 
+        psychedelic-rotate 3s linear infinite,
+        psychedelic-pulse 2s ease-in-out infinite,
+        gradientShift 5s ease infinite,
+        psychedelic-orbit 8s ease-in-out infinite;
+    opacity: 0.9;
+    box-shadow: 
+        0 0 30px rgba(255, 0, 204, 0.8),
+        0 0 60px rgba(52, 152, 219, 0.6),
+        0 0 90px rgba(46, 204, 113, 0.4),
+        inset 0 0 15px rgba(255, 255, 255, 0.8);
+    filter: hue-rotate(0deg) blur(0px);
+    transform-style: preserve-3d;
+    mix-blend-mode: screen;
+    /* Adicionar formato mutável para as bolhas */
+    clip-path: circle(50% at 50% 50%);
+    animation: 
+        psychedelic-rotate 3s linear infinite,
+        psychedelic-pulse 2s ease-in-out infinite,
+        gradientShift 5s ease infinite,
+        psychedelic-orbit 8s ease-in-out infinite,
+        blob-morph 10s ease-in-out infinite;
+}
+
+/* Efeito de blob/morphing para as bolhas */
+@keyframes blob-morph {
+    0%, 100% {
+        border-radius: 50%;
+        clip-path: circle(50% at 50% 50%);
+    }
+    25% {
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        clip-path: ellipse(50% 50% at 50% 50%);
+    }
+    50% {
+        border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+        clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    }
+    75% {
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        clip-path: ellipse(50% 50% at 50% 50%);
+    }
+}
+
+/* Tamanho e posição das bolhas individuais (psicodélicas) */
+#preloader .bubble.psychedelic:nth-child(1) {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+    width: 40px;
+    height: 40px;
+    box-shadow: 
+        0 0 40px rgba(255, 0, 204, 1), 
+        0 0 80px rgba(52, 152, 219, 0.8),
+        0 0 120px rgba(46, 204, 113, 0.5),
+        inset 0 0 20px rgba(255, 255, 255, 1);
+    opacity: 1;
+    z-index: 10;
+    animation-duration: 10s, 3s, 8s, 20s, 30s;
+    animation-delay: 0s, 0s, 0s, 0s, 0s;
+}
+
+#preloader .bubble.psychedelic:nth-child(2) {
+    left: 30%;
+    top: 30%;
+    animation-delay: 0.3s, 0.5s, 1s, 0.2s;
+    animation-duration: 7s, 4s, 7s, 12s;
+}
+
+#preloader .bubble.psychedelic:nth-child(3) {
+    left: 70%;
+    top: 40%;
+    animation-delay: 0.6s, 1s, 0.5s, 0.4s;
+    animation-duration: 8s, 3.5s, 9s, 15s;
+}
+
+#preloader .bubble.psychedelic:nth-child(4) {
+    left: 40%;
+    top: 70%;
+    animation-delay: 0.9s, 1.5s, 1.2s, 0.6s;
+    width: 15px;
+    height: 15px;
+    animation-duration: 9s, 2.5s, 10s, 18s;
+}
+
+#preloader .bubble.psychedelic:nth-child(5) {
+    left: 65%;
+    top: 60%;
+    animation-delay: 1.2s, 2s, 0.8s, 0.8s;
+    width: 18px;
+    height: 18px;
+    animation-duration: 6s, 3.2s, 6s, 14s;
+}
+
+#preloader .bubble.psychedelic:nth-child(6) {
+    left: 55%;
+    top: 25%;
+    animation-delay: 1.5s, 2.5s, 1.5s, 1s;
+    width: 22px;
+    height: 22px;
+    animation-duration: 7.5s, 2.8s, 7.5s, 16s;
+}
+
+/* Animações de rastro para as bolhas */
+#preloader .bubble.psychedelic::before,
+#preloader .bubble.psychedelic::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: inherit;
+    animation: trail-effect 3s linear infinite;
+    opacity: 0.7;
+    filter: blur(5px);
+    transform-origin: center;
+}
+
+#preloader .bubble.psychedelic::before {
+    animation-delay: -1s;
+}
+
+#preloader .bubble.psychedelic::after {
+    animation-delay: -2s;
+}
+
+/* Animações psicodélicas */
+@keyframes psychedelic-rotate {
+    0% { 
+        transform: rotate(0deg) scale(1); 
+        filter: hue-rotate(0deg) contrast(1.5) brightness(1.2);
+    }
+    50% { 
+        transform: rotate(180deg) scale(1.3); 
+        filter: hue-rotate(180deg) contrast(2) brightness(1.5);
+    }
+    100% { 
+        transform: rotate(360deg) scale(1); 
+        filter: hue-rotate(360deg) contrast(1.5) brightness(1.2);
+    }
+}
+
+@keyframes psychedelic-pulse {
+    0%, 100% { 
+        transform: scale(1); 
+        filter: blur(0px);
+    }
+    50% { 
+        transform: scale(1.5); 
+        filter: blur(2px);
+    }
+}
+
+@keyframes psychedelic-orbit {
+    0% {
+        transform: translateZ(0) rotateX(0deg) rotateY(0deg);
+    }
+    25% {
+        transform: translateZ(50px) rotateX(90deg) rotateY(90deg);
+    }
+    50% {
+        transform: translateZ(0) rotateX(180deg) rotateY(180deg);
+    }
+    75% {
+        transform: translateZ(-50px) rotateX(270deg) rotateY(270deg);
+    }
+    100% {
+        transform: translateZ(0) rotateX(360deg) rotateY(360deg);
+    }
+}
+
+@keyframes trail-effect {
+    0% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+/* Efeito de números binários aleatórios */
+.binary-text {
+    position: absolute;
+    color: rgba(50, 255, 150, 0.4);
+    font-family: monospace;
+    font-size: 10px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.binary-text::after {
+    content: "01010111 01000101 01001100 01000011 01001111 01001101 01000101 00100000 01010100 01001111 00100000 01010100 01001000 01000101 00100000 01000110 01010101 01010100 01010101 01010010 01000101 00001010";
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 14px;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    color: rgba(46, 204, 113, 0.5);
+    text-shadow: 0 0 5px rgba(52, 152, 219, 0.8);
+    animation: matrix-effect 10s linear infinite;
+    width: 100%;
+    height: 200%;
+}
+
+@keyframes matrix-effect {
+    0% { top: 0; }
+    100% { top: -100%; }
+}
+
+/* Barras de progresso digitais */
+.progress-bars {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+    margin: 30px auto 0;
+}
+
+.progress-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 5px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::before {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    animation: progressAnimate 2s ease-in-out infinite;
+    transform-origin: left;
+}
+
+.progress-bar:nth-child(2)::before {
+    animation-delay: 0.4s;
+}
+
+.progress-bar:nth-child(3)::before {
+    animation-delay: 0.8s;
+}
+
+/* Mini números binários */
+.binary-text {
+    position: absolute;
+    color: rgba(50, 255, 150, 0.4);
+    font-family: monospace;
+    font-size: 10px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Linha de digitalização */
+.scan-line {
+    position: absolute;
+    width: 100%;
+    height: 10px;
+    background: linear-gradient(to bottom, 
+        rgba(52, 152, 219, 0) 0%,
+        rgba(52, 152, 219, 0.5) 50%,
+        rgba(52, 152, 219, 0) 100%);
+    animation: scanline 2s linear infinite;
+    opacity: 0.7;
+    z-index: 2;
+}
+
+/* Animações para o preloader */
+@keyframes scanner {
+    0% { top: -5px; }
+    50% { top: 100%; }
+    50.001% { top: -5px; }
+    100% { top: 100%; }
+}
+
+@keyframes rotate {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes rotate-reverse {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(-360deg); }
+}
+
+@keyframes glitch {
+    0%, 100% { transform: skew(0deg); }
+    33% { transform: skew(0.5deg); }
+    66% { transform: skew(-0.5deg); }
+}
+
+@keyframes glitch-effect {
+    0%, 100% { transform: translate(0); }
+    33% { transform: translate(-5px, 3px); }
+    66% { transform: translate(5px, -3px); }
+}
+
+@keyframes spin3D {
+    0% { transform: translate(-50%, -50%) rotateY(0deg); }
+    100% { transform: translate(-50%, -50%) rotateY(360deg); }
+}
+
+@keyframes float3D {
+    0%, 100% { transform: translateZ(0) rotateX(0deg); }
+    50% { transform: translateZ(20px) rotateX(5deg); }
+}
+
+@keyframes rotate3D {
+    0% { transform: translate(-50%, -50%) rotateZ(0deg); }
+    100% { transform: translate(-50%, -50%) rotateZ(360deg); }
+}
+
+@keyframes rotate3D-reverse {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(-360deg); }
+}
+
+@keyframes pulse3D {
+    0%, 100% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.2); filter: brightness(1.5); }
+}
+
+@keyframes progressAnimate {
+    0% { transform: scaleX(0); transform-origin: left; }
+    50% { transform: scaleX(1); transform-origin: left; }
+    50.001% { transform: scaleX(1); transform-origin: right; }
+    100% { transform: scaleX(0); transform-origin: right; }
+}
+
+@keyframes scanline {
+    0% { top: 0%; }
+    100% { top: 100%; }
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+#main-content {
+    opacity: 0;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+    visibility: hidden;
+    will-change: opacity, visibility;
+}
+
+body.loaded #main-content {
+    opacity: 1;
+    visibility: visible;
+}
+
+body.loaded #preloader {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -324,22 +911,120 @@ header h1 {
     text-align: center;
     padding: 20px;
     margin: 20px 0;
-    display: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
 }
 
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(0, 0, 0, 0.1);
+/* Futuristic bubble loading animation */
+.loading-bubbles {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 15px;
+}
+
+.bubble {
+    position: absolute;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    border-left-color: var(--secondary-color);
-    animation: spin 1s linear infinite;
-    margin: 0 auto 10px;
+    background: linear-gradient(135deg, var(--secondary-color), #2ecc71);
+    box-shadow: 0 0 15px rgba(52, 152, 219, 0.8), 
+                inset 0 0 8px rgba(255, 255, 255, 0.6);
+    animation: float 4s ease-in-out infinite;
+    opacity: 0.7;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+.bubble:nth-child(1) {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: 0s;
+    width: 25px;
+    height: 25px;
+}
+
+.bubble:nth-child(2) {
+    left: 25%;
+    top: 40%;
+    animation-delay: 0.5s;
+}
+
+.bubble:nth-child(3) {
+    left: 75%;
+    top: 40%;
+    animation-delay: 1s;
+}
+
+.bubble:nth-child(4) {
+    left: 40%;
+    top: 75%;
+    animation-delay: 1.5s;
+    width: 15px;
+    height: 15px;
+}
+
+.bubble:nth-child(5) {
+    left: 60%;
+    top: 75%;
+    animation-delay: 2s;
+    width: 15px;
+    height: 15px;
+}
+
+.bubble:nth-child(6) {
+    left: 50%;
+    top: 20%;
+    animation-delay: 2.5s;
+    width: 15px;
+    height: 15px;
+}
+
+.loading-text {
+    color: var(--secondary-color);
+    font-size: 18px;
+    font-weight: 500;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 5px rgba(46, 204, 113, 0.3);
+    letter-spacing: 1px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+        filter: hue-rotate(0deg) brightness(1);
+    }
+    25% {
+        filter: hue-rotate(90deg) brightness(1.2);
+    }
+    50% {
+        transform: translateY(-15px) scale(1.1);
+        filter: hue-rotate(180deg) brightness(1.4);
+    }
+    75% {
+        filter: hue-rotate(270deg) brightness(1.2);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Spinner animation - keeping for backward compatibility */
+.spinner {
+    display: none; /* Hide the old spinner */
 }
 
 /* Footer */
@@ -440,4 +1125,49 @@ footer {
     background-color: #ccc;
     cursor: not-allowed;
     transform: none;
+}
+
+@keyframes floatPreloader {
+    0%, 100% {
+        transform: translateY(0) scale(1) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-20px) scale(1.15) rotate(10deg);
+    }
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Distortion effect */
+@keyframes distortBackground {
+    0% {
+        filter: contrast(1.5) hue-rotate(0deg) saturate(1.2);
+        transform: scale(1.0) rotate(0deg) skew(0deg);
+    }
+    25% {
+        filter: contrast(2) hue-rotate(90deg) saturate(1.5);
+        transform: scale(1.05) rotate(2deg) skew(3deg);
+    }
+    50% {
+        filter: contrast(1.8) hue-rotate(180deg) saturate(1.4);
+        transform: scale(1.1) rotate(-1deg) skew(-2deg);
+    }
+    75% {
+        filter: contrast(2.2) hue-rotate(270deg) saturate(1.6);
+        transform: scale(1.05) rotate(3deg) skew(1deg);
+    }
+    100% {
+        filter: contrast(1.5) hue-rotate(360deg) saturate(1.2);
+        transform: scale(1.0) rotate(0deg) skew(0deg);
+    }
 } 

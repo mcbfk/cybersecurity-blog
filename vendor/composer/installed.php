@@ -3,7 +3,7 @@
         'name' => 'yourvendor/cybersecurity-blog',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'f63e03ac4c5af4cc6b1ee3a377e5352b48fa679b',
+        'reference' => '03b68a1fd889b7ca21c286050718598c5d34932e',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -91,7 +91,7 @@
         'yourvendor/cybersecurity-blog' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'f63e03ac4c5af4cc6b1ee3a377e5352b48fa679b',
+            'reference' => '03b68a1fd889b7ca21c286050718598c5d34932e',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

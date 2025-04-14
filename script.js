@@ -1,4 +1,90 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Preloader handling
+    const preloader = document.getElementById('preloader');
+    const mainContent = document.getElementById('main-content');
+    
+    // Criar efeito de texto binário
+    if (document.querySelector('.binary-text')) {
+        generateBinaryText();
+    }
+    
+    // Função para gerar texto binário aleatório
+    function generateBinaryText() {
+        const binaryText = document.querySelector('.binary-text');
+        let binaryString = '';
+        
+        for (let i = 0; i < 500; i++) {
+            binaryString += Math.floor(Math.random() * 2);
+            if (i % 8 === 7) binaryString += ' ';
+            if (i % 64 === 63) binaryString += '\n';
+        }
+        
+        binaryText.setAttribute('data-text', binaryString);
+        
+        // Atualizar periodicamente
+        setInterval(() => {
+            let newBinary = '';
+            for (let i = 0; i < 500; i++) {
+                newBinary += Math.floor(Math.random() * 2);
+                if (i % 8 === 7) newBinary += ' ';
+                if (i % 64 === 63) newBinary += '\n';
+            }
+            binaryText.setAttribute('data-text', newBinary);
+        }, 2000);
+    }
+    
+    // Animação psicodélica das bolhas
+    const psychedelicBubbles = document.querySelectorAll('.bubble.psychedelic');
+    
+    // Aplicar cores aleatórias às bolhas para efeito mais alucinógeno
+    psychedelicBubbles.forEach(bubble => {
+        setInterval(() => {
+            const hue = Math.floor(Math.random() * 360);
+            const saturation = 80 + Math.floor(Math.random() * 20);
+            const lightness = 50 + Math.floor(Math.random() * 30);
+            
+            bubble.style.boxShadow = `0 0 ${20 + Math.random() * 40}px hsl(${hue}, ${saturation}%, ${lightness}%), 
+                                      0 0 ${40 + Math.random() * 60}px hsl(${(hue + 60) % 360}, ${saturation}%, ${lightness}%),
+                                      inset 0 0 ${15 + Math.random() * 15}px rgba(255, 255, 255, 0.8)`;
+        }, 1000 + Math.random() * 1000); // Tempo aleatório para cada bolha
+    });
+    
+    // Make sure main content is initially hidden
+    if (mainContent) {
+        mainContent.style.opacity = '0';
+        mainContent.style.visibility = 'hidden';
+    }
+    
+    // Function to handle the page loaded state
+    function showPage() {
+        // Force the preloader to show for at least 2 seconds for better UX
+        setTimeout(() => {
+            // Add loaded class to body to trigger transitions
+            document.body.classList.add('loaded');
+            
+            // Explicitar a visibilidade do conteúdo principal após o tempo de transição
+            setTimeout(() => {
+                if (mainContent) {
+                    mainContent.style.opacity = '1';
+                    mainContent.style.visibility = 'visible';
+                }
+                
+                // Remover completamente o preloader depois da transição
+                if (preloader) {
+                    preloader.style.display = 'none';
+                }
+            }, 800); // Tempo compatível com a transição CSS
+        }, 2000);
+    }
+    
+    // If all resources are already loaded
+    if (document.readyState === 'complete') {
+        showPage();
+    } else {
+        // Wait for everything to load then show page
+        window.addEventListener('load', showPage);
+    }
+    
     // Configuração do Carousel
     const carouselItems = document.querySelectorAll('.carousel-item');
     const prevBtn = document.querySelector('.carousel-control.prev');

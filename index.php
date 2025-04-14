@@ -19,87 +19,133 @@ $gridNews = array_slice($allNews, 0, 12); // Primeiras 12 notícias para o grid 
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="logo">
-                <i class="fas fa-shield-alt"></i>
-                <h1>CyberNews</h1>
-            </div>
-            <p class="tagline">Notícias de segurança cibernética em um só lugar</p>
-        </div>
-    </header>
-
-    <main class="container">
-        <!-- Carousel -->
-        <section class="carousel-container">
-            <div class="carousel">
-                <?php foreach ($featuredNews as $index => $news): ?>
-                <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
-                    <div class="carousel-image" style="background-image: url('<?= htmlspecialchars($news['image']) ?>'); background-size: cover; background-position: center;"></div>
-                    <div class="carousel-content">
-                        <span class="badge"><?= htmlspecialchars($news['source']) ?></span>
-                        <h2><?= htmlspecialchars($news['title']) ?></h2>
-                        <p><?= htmlspecialchars($news['description']) ?></p>
-                        <a href="<?= htmlspecialchars($news['url']) ?>" target="_blank" class="btn">Leia mais <i class="fas fa-external-link-alt"></i></a>
-                    </div>
+    <!-- Preloader - fully covers screen until loaded -->
+    <div id="preloader">
+        <div class="circuit-lines"></div>
+        <div class="binary-text"></div>
+        <div class="scan-line"></div>
+        <div class="preloader-content">
+            <div class="holo-container">
+                <div class="rotating-ring"></div>
+                <div class="rotating-ring"></div>
+                <div class="rotating-ring"></div>
+                <div class="tech-circle"></div>
+                <div class="hex-spinner">
+                    <div class="hex"></div>
+                    <div class="hex"></div>
+                    <div class="hex"></div>
+                    <div class="hex"></div>
+                    <div class="hex"></div>
+                    <div class="hex"></div>
                 </div>
-                <?php endforeach; ?>
-            </div>
-            <button class="carousel-control prev"><i class="fas fa-chevron-left"></i></button>
-            <button class="carousel-control next"><i class="fas fa-chevron-right"></i></button>
-            <div class="carousel-indicators">
-                <?php for ($i = 0; $i < count($featuredNews); $i++): ?>
-                <span class="indicator <?= $i === 0 ? 'active' : '' ?>" data-index="<?= $i ?>"></span>
-                <?php endfor; ?>
-            </div>
-        </section>
-
-        <div class="section-header">
-            <h2 class="section-title">Últimas Notícias</h2>
-            <div class="section-line"></div>
-        </div>
-
-        <!-- Grid de notícias com scroll infinito -->
-        <section class="news-grid" id="news-grid">
-            <?php foreach ($gridNews as $news): ?>
-            <article class="news-card">
-                <div class="news-image">
-                    <img src="<?= htmlspecialchars($news['image']) ?>" alt="<?= htmlspecialchars($news['title']) ?>" onerror="this.src='https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';">
-                    <span class="badge"><?= htmlspecialchars($news['source']) ?></span>
+                <div class="loading-bubbles">
+                    <div class="bubble psychedelic"></div>
+                    <div class="bubble psychedelic"></div>
+                    <div class="bubble psychedelic"></div>
+                    <div class="bubble psychedelic"></div>
+                    <div class="bubble psychedelic"></div>
+                    <div class="bubble psychedelic"></div>
                 </div>
-                <div class="news-content">
-                    <h3><?= htmlspecialchars($news['title']) ?></h3>
-                    <p><?= htmlspecialchars($news['description']) ?></p>
-                    <a href="<?= htmlspecialchars($news['url']) ?>" target="_blank" class="read-more">Leia mais <i class="fas fa-arrow-right"></i></a>
-                </div>
-            </article>
-            <?php endforeach; ?>
-        </section>
-
-        <div id="loading" class="loading-indicator" style="display: none;">
-            <div class="spinner"></div>
-            <p>Carregando mais notícias...</p>
+            </div>
+            <div class="loading-text glitch-text">CARREGANDO CYBERNEWS</div>
+            <div class="progress-bars">
+                <div class="progress-bar"></div>
+                <div class="progress-bar"></div>
+                <div class="progress-bar"></div>
+            </div>
         </div>
-        
-        <div class="load-more-container">
-            <button id="load-more-btn" class="btn">Carregar mais notícias</button>
-        </div>
-    </main>
+    </div>
 
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">
+    <div id="main-content">
+        <header>
+            <div class="container">
+                <div class="logo">
                     <i class="fas fa-shield-alt"></i>
-                    <h2>CyberNews</h2>
+                    <h1>CyberNews</h1>
                 </div>
-                <p>Seu portal de notícias sobre cibersegurança. Agregando conteúdo dos melhores sites especializados.</p>
+                <p class="tagline">Notícias de segurança cibernética em um só lugar</p>
             </div>
-            <div class="copyright">
-                <p>&copy; <?= date('Y') ?> CyberNews - Todas as notícias são de propriedade de seus respectivos sites.</p>
+        </header>
+
+        <main class="container">
+            <!-- Carousel -->
+            <section class="carousel-container">
+                <div class="carousel">
+                    <?php foreach ($featuredNews as $index => $news): ?>
+                    <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
+                        <div class="carousel-image" style="background-image: url('<?= htmlspecialchars($news['image']) ?>'); background-size: cover; background-position: center;"></div>
+                        <div class="carousel-content">
+                            <span class="badge"><?= htmlspecialchars($news['source']) ?></span>
+                            <h2><?= htmlspecialchars($news['title']) ?></h2>
+                            <p><?= htmlspecialchars($news['description']) ?></p>
+                            <a href="<?= htmlspecialchars($news['url']) ?>" target="_blank" class="btn">Leia mais <i class="fas fa-external-link-alt"></i></a>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <button class="carousel-control prev"><i class="fas fa-chevron-left"></i></button>
+                <button class="carousel-control next"><i class="fas fa-chevron-right"></i></button>
+                <div class="carousel-indicators">
+                    <?php for ($i = 0; $i < count($featuredNews); $i++): ?>
+                    <span class="indicator <?= $i === 0 ? 'active' : '' ?>" data-index="<?= $i ?>"></span>
+                    <?php endfor; ?>
+                </div>
+            </section>
+
+            <div class="section-header">
+                <h2 class="section-title">Últimas Notícias</h2>
+                <div class="section-line"></div>
             </div>
-        </div>
-    </footer>
+
+            <!-- Grid de notícias com scroll infinito -->
+            <section class="news-grid" id="news-grid">
+                <?php foreach ($gridNews as $news): ?>
+                <article class="news-card">
+                    <div class="news-image">
+                        <img src="<?= htmlspecialchars($news['image']) ?>" alt="<?= htmlspecialchars($news['title']) ?>" onerror="this.src='https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';">
+                        <span class="badge"><?= htmlspecialchars($news['source']) ?></span>
+                    </div>
+                    <div class="news-content">
+                        <h3><?= htmlspecialchars($news['title']) ?></h3>
+                        <p><?= htmlspecialchars($news['description']) ?></p>
+                        <a href="<?= htmlspecialchars($news['url']) ?>" target="_blank" class="read-more">Leia mais <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+                <?php endforeach; ?>
+            </section>
+
+            <div id="loading" class="loading-indicator" style="display: none;">
+                <div class="loading-bubbles">
+                    <div class="bubble"></div>
+                    <div class="bubble"></div>
+                    <div class="bubble"></div>
+                    <div class="bubble"></div>
+                    <div class="bubble"></div>
+                    <div class="bubble"></div>
+                </div>
+                <div class="loading-text">Carregando mais notícias...</div>
+            </div>
+            
+            <div class="load-more-container">
+                <button id="load-more-btn" class="btn">Carregar mais notícias</button>
+            </div>
+        </main>
+
+        <footer>
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-logo">
+                        <i class="fas fa-shield-alt"></i>
+                        <h2>CyberNews</h2>
+                    </div>
+                    <p>Seu portal de notícias sobre cibersegurança. Agregando conteúdo dos melhores sites especializados.</p>
+                </div>
+                <div class="copyright">
+                    <p>&copy; <?= date('Y') ?> CyberNews - Todas as notícias são de propriedade de seus respectivos sites.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
 
     <script src="script.js"></script>
 </body>
