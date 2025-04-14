@@ -636,11 +636,90 @@ document.addEventListener('DOMContentLoaded', function() {
             preloader.appendChild(leaf);
         }
         
-        // Adicionar texto temático
+        // Adicionar texto temático mais elaborado
+        const cannabisTextContainer = document.createElement('div');
+        cannabisTextContainer.className = 'cannabis-text-container';
+        
+        // Texto principal "420" com efeito de brilho e pulsação
         const cannabisText = document.createElement('div');
         cannabisText.className = 'cannabis-text';
-        cannabisText.textContent = '420';
-        preloader.appendChild(cannabisText);
+        cannabisText.innerHTML = `
+            <div class="digit-container">
+                <span class="digit" data-digit="4">4</span>
+                <div class="digit-shadow" data-digit="4">4</div>
+                <div class="digit-glow" data-digit="4">4</div>
+            </div>
+            <div class="digit-container">
+                <span class="digit" data-digit="2">2</span>
+                <div class="digit-shadow" data-digit="2">2</div>
+                <div class="digit-glow" data-digit="2">2</div>
+            </div>
+            <div class="digit-container">
+                <span class="digit" data-digit="0">0</span>
+                <div class="digit-shadow" data-digit="0">0</div>
+                <div class="digit-glow" data-digit="0">0</div>
+            </div>
+            <div class="fractal-overlay"></div>
+            <div class="glow-effect"></div>
+        `;
+        
+        // Adicionar animação de rotação e efeito de ilusão
+        setTimeout(() => {
+            const digitContainers = cannabisText.querySelectorAll('.digit-container');
+            digitContainers.forEach((container, index) => {
+                // Adicionar classe para iniciar a animação
+                container.classList.add('animate');
+                
+                // Atraso escalonado para cada dígito
+                setTimeout(() => {
+                    container.classList.add('pulse');
+                }, index * 200);
+                
+                // Criar efeito de eco para cada dígito
+                for (let i = 0; i < 3; i++) {
+                    const echo = document.createElement('div');
+                    echo.className = 'digit-echo';
+                    echo.textContent = container.querySelector('.digit').getAttribute('data-digit');
+                    echo.style.animationDelay = `${0.2 + i * 0.3}s`;
+                    container.appendChild(echo);
+                }
+            });
+            
+            // Adicionar efeito fractal animado
+            const fractalOverlay = cannabisText.querySelector('.fractal-overlay');
+            fractalOverlay.innerHTML = `
+                <div class="fractal-ring"></div>
+                <div class="fractal-ring" style="animation-delay: 0.2s"></div>
+                <div class="fractal-ring" style="animation-delay: 0.4s"></div>
+                <div class="fractal-shape"></div>
+            `;
+        }, 500);
+        
+        // Adicionar slogan abaixo do 420
+        const cannabisSlogan = document.createElement('div');
+        cannabisSlogan.className = 'cannabis-slogan';
+        cannabisSlogan.textContent = 'Expandindo sua mente digital';
+        
+        // Adicionar ícones decorativos
+        const iconsRow = document.createElement('div');
+        iconsRow.className = 'cannabis-icons';
+        iconsRow.innerHTML = `
+            <i class="fas fa-cannabis"></i>
+            <i class="fas fa-brain"></i>
+            <i class="fas fa-eye"></i>
+            <i class="fas fa-cannabis"></i>
+        `;
+        
+        // Colocar tudo junto
+        cannabisTextContainer.appendChild(cannabisText);
+        cannabisTextContainer.appendChild(cannabisSlogan);
+        cannabisTextContainer.appendChild(iconsRow);
+        preloader.appendChild(cannabisTextContainer);
+        
+        // Adicionar efeito de ondas coloridas ao fundo
+        const wavesEffect = document.createElement('div');
+        wavesEffect.className = 'psychedelic-waves';
+        preloader.appendChild(wavesEffect);
     }
 
     // Função para obter caminhos SVG de folhas de cannabis
@@ -665,5 +744,156 @@ document.addEventListener('DOMContentLoaded', function() {
     if (savedTheme === 'psychedelic') {
         createCannabisPreloaderElements();
     }
-}); 
+
+    // Menu lateral alucinado
+    function setupPsychedelicMenu() {
+        const menuToggle = document.querySelector('.menu-toggle');
+        const body = document.body;
+        const mainContent = document.getElementById('main-content');
+        
+        // Adicionar partículas brilhantes ao menu
+        createGlowParticles();
+        
+        // Manipular clique no botão do menu
+        menuToggle.addEventListener('click', function() {
+            body.classList.toggle('menu-active');
+            
+            // Adicionar efeito distorcido ao conteúdo principal quando o menu está aberto
+            if (body.classList.contains('menu-active')) {
+                if (body.classList.contains('psychedelic-mode')) {
+                    // Efeito extra para o modo psicodélico
+                    applyPsychedelicMenuEffect();
+                }
+            }
+        });
+        
+        // Fechar menu ao clicar fora dele
+        mainContent.addEventListener('click', function() {
+            if (body.classList.contains('menu-active')) {
+                body.classList.remove('menu-active');
+            }
+        });
+        
+        // Adicionar classe 'active' ao item de menu atual baseado na seção da página
+        const menuItems = document.querySelectorAll('.menu-item');
+        menuItems[0].classList.add('active'); // Definir 'Início' como ativo por padrão
+        
+        menuItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Remover classe 'active' de todos os itens
+                menuItems.forEach(i => i.classList.remove('active'));
+                // Adicionar classe 'active' ao item clicado
+                this.classList.add('active');
+                
+                // Se estiver em modo móvel, fechar o menu após clicar
+                if (window.innerWidth <= 768) {
+                    body.classList.remove('menu-active');
+                }
+                
+                // Adicionar efeito visual quando um item do menu é clicado
+                const link = this.querySelector('.menu-link');
+                addClickRippleEffect(link, e);
+            });
+        });
+    }
+    
+    // Função para criar partículas brilhantes dinamicamente
+    function createGlowParticles() {
+        const glowParticlesContainer = document.querySelector('.glow-particles');
+        const particleCount = 10;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'menu-particle';
+            
+            // Posição aleatória
+            particle.style.top = `${Math.random() * 100}%`;
+            particle.style.left = `${Math.random() * 100}%`;
+            
+            // Tamanho aleatório
+            const size = Math.random() * 15 + 5;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            // Cor aleatória - duas tonalidades de verde
+            const isLightGreen = Math.random() > 0.5;
+            const color = isLightGreen ? 
+                `rgba(92, 219, 92, ${Math.random() * 0.5 + 0.3})` : 
+                `rgba(46, 204, 113, ${Math.random() * 0.5 + 0.3})`;
+            
+            particle.style.background = `radial-gradient(circle at center, ${color}, transparent 70%)`;
+            particle.style.filter = `blur(${Math.random() * 3 + 1}px)`;
+            
+            // Animação com delay aleatório
+            particle.style.animation = `float-particle ${Math.random() * 5 + 5}s ease-in-out infinite`;
+            particle.style.animationDelay = `${Math.random() * 5}s`;
+            
+            // Adicionar ao container
+            glowParticlesContainer.appendChild(particle);
+        }
+    }
+    
+    // Efeito de ondulação ao clicar em itens do menu
+    function addClickRippleEffect(element, event) {
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple-effect';
+        
+        const rect = element.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        
+        ripple.style.width = ripple.style.height = `${size}px`;
+        ripple.style.left = `${event.clientX - rect.left - size/2}px`;
+        ripple.style.top = `${event.clientY - rect.top - size/2}px`;
+        
+        element.appendChild(ripple);
+        
+        // Remover após a animação terminar
+        setTimeout(() => {
+            ripple.remove();
+        }, 600);
+    }
+    
+    // Aplicar efeito extra quando o menu está aberto em modo psicodélico
+    function applyPsychedelicMenuEffect() {
+        // Criar folhas de cannabis que flutuam ao redor do menu quando aberto
+        const menuBackground = document.querySelector('.menu-background');
+        
+        for (let i = 0; i < 3; i++) {
+            const leaf = document.createElement('div');
+            leaf.className = 'menu-cannabis-leaf';
+            
+            // Tamanho aleatório
+            const size = Math.random() * 30 + 15;
+            leaf.style.width = `${size}px`;
+            leaf.style.height = `${size}px`;
+            
+            // Posição aleatória
+            leaf.style.top = `${Math.random() * 80 + 10}%`;
+            leaf.style.left = `${Math.random() * 80 + 10}%`;
+            
+            // Rotação aleatória
+            leaf.style.transform = `rotate(${Math.random() * 360}deg)`;
+            
+            // Atraso de animação aleatório
+            leaf.style.animationDelay = `${Math.random() * 2}s`;
+            
+            // Adicionar SVG da folha de cannabis
+            leaf.innerHTML = `
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#5cdb5c" d="M50,10 C60,25 80,20 85,30 C90,40 80,50 70,55 C80,60 85,75 80,85 C75,95 60,90 50,85 C40,90 25,95 20,85 C15,75 20,60 30,55 C20,50 10,40 15,30 C20,20 40,25 50,10 Z" />
+                </svg>
+            `;
+            
+            menuBackground.appendChild(leaf);
+            
+            // Remover folha após um tempo
+            setTimeout(() => {
+                leaf.remove();
+            }, 5000);
+        }
+    }
+    
+    // Inicializar o menu
+    setupPsychedelicMenu();
+});
  

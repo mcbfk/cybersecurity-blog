@@ -22,7 +22,7 @@
     --psychedelic-primary: #0d1e11;
     --psychedelic-secondary: #3a1c53;
     --psychedelic-accent: #5cdb5c;
-    --psychedelic-accent2: #8e44ad;
+    --psychedelic-accent2: #2ecc71;
     --psychedelic-text: #ccffcc;
     --psychedelic-shadow: 0 0 20px rgba(92, 219, 92, 0.4);
 }
@@ -44,6 +44,8 @@
     visibility: visible;
     overflow: hidden;
     perspective: 1000px;
+    overscroll-behavior: none;
+    touch-action: none;
 }
 
 /* Background com efeito canábico */
@@ -60,7 +62,7 @@
                 transparent 70%),
                 radial-gradient(
                 circle at 70% 60%, 
-                rgba(58, 28, 83, 0.3), 
+                rgba(46, 204, 113, 0.3), 
                 transparent 70%),
                 linear-gradient(to bottom, 
                 rgba(13, 30, 17, 0.9) 0%, 
@@ -153,7 +155,7 @@
     left: 40px;
     right: 40px;
     bottom: 40px;
-    border: 4px dotted rgba(155, 89, 182, 0.5);
+    border: 4px dotted rgba(46, 204, 113, 0.5);
     animation: rotate3D 15s linear infinite;
 }
 
@@ -173,7 +175,7 @@
     width: 100%;
     height: 100%;
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    background: linear-gradient(135deg, #3498db, #2ecc71, #9b59b6);
+    background: linear-gradient(135deg, #3498db, #2ecc71, #1abc9c);
     background-size: 300% 300%;
     animation: gradientShift 8s ease infinite;
     opacity: 0.15;
@@ -212,7 +214,7 @@
 .rotating-ring:nth-child(3) {
     width: 120px;
     height: 120px;
-    border-top: 3px solid rgba(155, 89, 182, 0.8);
+    border-top: 3px solid rgba(46, 204, 113, 0.8);
     border-left: 3px solid transparent;
     animation: rotate 3s linear infinite;
 }
@@ -239,7 +241,7 @@
     height: 20px;
     border-radius: 50%;
     background: conic-gradient(
-        #5cdb5c, #3a1c53, #5cdb5c, #8e44ad, #5cdb5c
+        #5cdb5c, #2ecc71, #5cdb5c, #1abc9c, #5cdb5c
     );
     background-size: 400% 400%;
     animation: 
@@ -288,8 +290,8 @@
     width: 40px;
     height: 40px;
     box-shadow: 
-        0 0 40px rgba(255, 0, 204, 1), 
-        0 0 80px rgba(52, 152, 219, 0.8),
+        0 0 40px rgba(92, 219, 92, 1), 
+        0 0 80px rgba(46, 204, 113, 0.8),
         0 0 120px rgba(46, 204, 113, 0.5),
         inset 0 0 20px rgba(255, 255, 255, 1);
     opacity: 1;
@@ -473,7 +475,7 @@
     position: absolute;
     height: 100%;
     width: 100%;
-    background: linear-gradient(90deg, #5cdb5c, #8e44ad);
+    background: linear-gradient(90deg, #5cdb5c, #2ecc71);
     animation: progressAnimate 2s ease-in-out infinite;
     transform-origin: left;
 }
@@ -549,8 +551,10 @@
 }
 
 @keyframes float3D {
-    0%, 100% { transform: translateZ(0) rotateX(0deg); }
-    50% { transform: translateZ(20px) rotateX(5deg); }
+    0%, 100% { transform: translateZ(0) translateY(0) rotateX(0deg); }
+    25% { transform: translateZ(15px) translateY(-5px) rotateX(5deg); }
+    50% { transform: translateZ(25px) translateY(0) rotateX(0deg); }
+    75% { transform: translateZ(15px) translateY(5px) rotateX(-5deg); }
 }
 
 @keyframes rotate3D {
@@ -915,15 +919,15 @@ header h1 {
 .loading-indicator {
     text-align: center;
     padding: 20px;
-    margin: 20px 0;
+    margin: 30px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 200px;
+    height: 250px; /* Increased height to provide more space */
     position: relative;
     perspective: 1000px;
-    overflow: hidden;
+    overflow: visible; /* Changed from hidden to visible to prevent text cutting */
 }
 
 /* Loading indicator with psychedelic background */
@@ -963,7 +967,7 @@ header h1 {
     height: 50px;
     transform: translate(-50%, -50%);
     background: conic-gradient(
-        #5cdb5c, #3a1c53, #8e44ad, #5cdb5c, #3a1c53, #8e44ad, #5cdb5c
+        #5cdb5c, #3a1c53, #2ecc71, #5cdb5c, #3a1c53, #2ecc71, #5cdb5c
     );
     border-radius: 50%;
     animation: 
@@ -972,7 +976,7 @@ header h1 {
         rotate-3d 10s linear infinite;
     box-shadow: 
         0 0 30px rgba(92, 219, 92, 0.8),
-        0 0 60px rgba(142, 68, 173, 0.6),
+        0 0 60px rgba(46, 204, 113, 0.6),
         inset 0 0 20px rgba(255, 255, 255, 0.8);
     z-index: 5;
 }
@@ -1002,7 +1006,7 @@ header h1 {
 /* Multiple rings with different properties */
 .fractal-ring:nth-child(1) {
     border-top: 2px solid rgba(92, 219, 92, 0.8);
-    border-bottom: 2px solid rgba(142, 68, 173, 0.8);
+    border-bottom: 2px solid rgba(46, 204, 113, 0.8);
     animation: rotate-x 10s linear infinite;
 }
 
@@ -1012,7 +1016,7 @@ header h1 {
     top: 10%;
     left: 10%;
     border-left: 2px solid rgba(92, 219, 92, 0.8);
-    border-right: 2px solid rgba(142, 68, 173, 0.8);
+    border-right: 2px solid rgba(46, 204, 113, 0.8);
     animation: rotate-y 8s linear infinite;
 }
 
@@ -1038,7 +1042,7 @@ header h1 {
 /* Hexagon shape */
 .fractal-shape.hexagon {
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    background: linear-gradient(45deg, rgba(92, 219, 92, 0.5), rgba(142, 68, 173, 0.5));
+    background: linear-gradient(45deg, rgba(92, 219, 92, 0.5), rgba(46, 204, 113, 0.5));
     animation: 
         rotate-z 15s linear infinite,
         morph-shape 8s ease-in-out infinite alternate;
@@ -1047,7 +1051,7 @@ header h1 {
 /* Triangle shape */
 .fractal-shape.triangle {
     clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-    background: linear-gradient(135deg, rgba(142, 68, 173, 0.5), rgba(92, 219, 92, 0.5));
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.5), rgba(92, 219, 92, 0.5));
     animation: 
         rotate-z-reverse 12s linear infinite,
         morph-shape-reverse 10s ease-in-out infinite alternate;
@@ -1094,43 +1098,57 @@ header h1 {
     animation: orbit-rotate 8s linear infinite 3s;
 }
 
-/* Mushroom symbols */
-.fractal-mushroom {
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    transform-origin: center;
-    z-index: 1;
+/* Additional cannabis leaf positions */
+.fractal-leaf.alt-position-1 {
+    top: 15%;
+    left: 25%;
+    width: 30px;
+    height: 30px;
+    animation: orbit-rotate-reverse 12s linear infinite, cannabis-pulse 5s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px rgba(92, 219, 92, 0.8)) hue-rotate(5deg);
 }
 
-.fractal-mushroom svg {
-    width: 100%;
-    height: 100%;
-    filter: drop-shadow(0 0 5px rgba(142, 68, 173, 0.8));
+.fractal-leaf.alt-position-2 {
+    top: 15%;
+    right: 25%;
+    width: 30px;
+    height: 30px;
+    animation: orbit-rotate-reverse 12s linear infinite 3s, cannabis-pulse 5s ease-in-out 0.5s infinite;
+    filter: drop-shadow(0 0 10px rgba(92, 219, 92, 0.8)) hue-rotate(-5deg);
 }
 
-.fractal-mushroom:nth-child(1) {
-    top: 20%;
-    left: 20%;
-    animation: orbit-rotate-reverse 10s linear infinite;
-}
-
-.fractal-mushroom:nth-child(2) {
-    top: 20%;
+.fractal-leaf.alt-position-3 {
+    bottom: 25%;
     right: 20%;
-    animation: orbit-rotate-reverse 10s linear infinite 2.5s;
+    width: 30px;
+    height: 30px;
+    animation: orbit-rotate-reverse 12s linear infinite 6s, cannabis-pulse 5s ease-in-out 1s infinite;
+    filter: drop-shadow(0 0 10px rgba(92, 219, 92, 0.8)) hue-rotate(10deg);
 }
 
-.fractal-mushroom:nth-child(3) {
-    bottom: 20%;
-    right: 20%;
-    animation: orbit-rotate-reverse 10s linear infinite 5s;
-}
-
-.fractal-mushroom:nth-child(4) {
-    bottom: 20%;
+.fractal-leaf.alt-position-4 {
+    bottom: 25%;
     left: 20%;
-    animation: orbit-rotate-reverse 10s linear infinite 7.5s;
+    width: 30px;
+    height: 30px;
+    animation: orbit-rotate-reverse 12s linear infinite 9s, cannabis-pulse 5s ease-in-out 1.5s infinite;
+    filter: drop-shadow(0 0 10px rgba(92, 219, 92, 0.8)) hue-rotate(-10deg);
+}
+
+/* Animation for cannabis leaves */
+@keyframes cannabis-pulse {
+    0% {
+        transform: scale(0.9) rotate(0deg);
+        filter: drop-shadow(0 0 8px rgba(92, 219, 92, 0.8)) brightness(1);
+    }
+    50% {
+        transform: scale(1.1) rotate(5deg);
+        filter: drop-shadow(0 0 15px rgba(92, 219, 92, 1)) brightness(1.2);
+    }
+    100% {
+        transform: scale(0.95) rotate(-3deg);
+        filter: drop-shadow(0 0 12px rgba(92, 219, 92, 0.9)) brightness(1.1);
+    }
 }
 
 /* DNA double helix effect */
@@ -1159,8 +1177,8 @@ header h1 {
 }
 
 .dna-point:nth-child(even) {
-    background: rgba(142, 68, 173, 0.8);
-    box-shadow: 0 0 10px rgba(142, 68, 173, 0.8);
+    background: rgba(46, 204, 113, 0.8);
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.8);
     animation: dna-wave-reverse 3s ease-in-out infinite;
 }
 
@@ -1199,8 +1217,8 @@ header h1 {
 
 .energy-particle:nth-child(3) {
     animation-delay: 0.8s;
-    background: rgba(142, 68, 173, 0.8);
-    box-shadow: 0 0 10px rgba(142, 68, 173, 0.8);
+    background: rgba(46, 204, 113, 0.8);
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.8);
 }
 
 .energy-particle:nth-child(4) {
@@ -1215,8 +1233,8 @@ header h1 {
 
 .energy-particle:nth-child(6) {
     animation-delay: 2s;
-    background: rgba(142, 68, 173, 0.8);
-    box-shadow: 0 0 10px rgba(142, 68, 173, 0.8);
+    background: rgba(46, 204, 113, 0.8);
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.8);
 }
 
 .energy-particle:nth-child(7) {
@@ -1242,6 +1260,11 @@ header h1 {
     animation: pulse 2s ease-in-out infinite;
     position: relative;
     z-index: 10;
+    width: 100%;
+    text-align: center;
+    margin-top: 20px;
+    padding: 0 10px;
+    overflow: visible;
 }
 
 /* Enhanced loading text for psychedelic mode */
@@ -1522,7 +1545,7 @@ footer {
     background-color: #ccc;
     cursor: not-allowed;
     transform: none;
-}
+} 
 
 @keyframes floatPreloader {
     0%, 100% {
@@ -1668,7 +1691,7 @@ body.psychedelic-mode .news-content h3::after {
     top: 0;
     left: 2px;
     width: 100%;
-    color: rgba(142, 68, 173, 0.5);
+    color: rgba(46, 204, 113, 0.5);
     overflow: hidden;
     clip: rect(0, 900px, 0, 0);
     animation: psychedelic-text-glitch 2s infinite linear alternate-reverse;
@@ -1872,7 +1895,7 @@ body.psychedelic-mode::before {
     height: 100%;
     background: 
         radial-gradient(circle at 30% 40%, rgba(92, 219, 92, 0.15), transparent 40%),
-        radial-gradient(circle at 70% 60%, rgba(142, 68, 173, 0.2), transparent 50%);
+        radial-gradient(circle at 70% 60%, rgba(46, 204, 113, 0.2), transparent 50%);
     z-index: -1;
     animation: psychedelic-bg 15s ease infinite alternate;
     pointer-events: none;
@@ -2045,14 +2068,14 @@ body.psychedelic-mode footer {
 }
 
 @keyframes psychedelic-pattern {
-    0% { 
+    0% {
         background-position: 0 0;
         opacity: 0.2;
     }
     50% {
         opacity: 0.4;
     }
-    100% { 
+    100% {
         background-position: 100px 100px;
         opacity: 0.2;
     }
@@ -2124,4 +2147,1127 @@ body.dark-mode #theme-switch {
 
 body.dark-mode #theme-switch:hover {
     background-color: rgba(255, 255, 255, 0.2);
-} 
+}
+
+/* Menu Lateral Alucinado */
+.psychedelic-menu-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9990;
+    pointer-events: none;
+}
+
+/* Botão do menu hambúrguer */
+.menu-toggle {
+    position: fixed;
+    top: 20px;
+    left: 230px; /* Posicionar à direita do menu lateral quando aberto */
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(13, 30, 17, 0.8);
+    backdrop-filter: blur(5px);
+    cursor: pointer;
+    z-index: 9992;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(92, 219, 92, 0.5);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: all;
+}
+
+/* Quando o menu está fechado, o botão fica na posição original */
+body:not(.menu-active) .menu-toggle {
+    left: 20px;
+}
+
+.hamburger {
+    width: 24px;
+    height: 20px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.hamburger span {
+    position: absolute;
+    height: 3px;
+    width: 100%;
+    background: linear-gradient(90deg, #5cdb5c, #8e44ad);
+    border-radius: 4px;
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.hamburger span:nth-child(1) {
+    top: 0;
+    left: 0;
+}
+
+.hamburger span:nth-child(2) {
+    top: 8px;
+    left: 0;
+    width: 70%;
+}
+
+.hamburger span:nth-child(3) {
+    bottom: 0;
+    left: 0;
+}
+
+.menu-active .hamburger span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.menu-active .hamburger span:nth-child(2) {
+    opacity: 0;
+    transform: translateX(-10px);
+}
+
+.menu-active .hamburger span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* Menu lateral principal */
+.side-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px; /* Reduzindo um pouco a largura */
+    height: 100vh;
+    background: rgba(13, 30, 17, 0.4);
+    box-shadow: 0 0 40px rgba(92, 219, 92, 0.4);
+    backdrop-filter: blur(10px);
+    transform: translateX(-100%);
+    transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+    z-index: 9991;
+    overflow: hidden;
+    pointer-events: all;
+}
+
+.menu-active .side-menu {
+    transform: translateX(0);
+}
+
+/* Background psicodélico animado do menu */
+.menu-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
+/* Forma líquida animada */
+.liquid-shape {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 400px;
+    height: 400px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(
+        circle at center,
+        rgba(92, 219, 92, 0.4),
+        rgba(46, 204, 113, 0.2) 50%,
+        transparent 70%
+    );
+    border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+    filter: blur(8px);
+    opacity: 0.8;
+    animation: 
+        morph-liquid 12s linear infinite alternate,
+        rotate-slow 20s linear infinite,
+        pulse-glow 8s ease-in-out infinite;
+}
+
+.liquid-shape::before,
+.liquid-shape::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    border-radius: inherit;
+    animation: 
+        morph-liquid 12s linear infinite alternate-reverse,
+        rotate-slow 15s linear infinite reverse;
+}
+
+.liquid-shape::before {
+    transform: scale(0.8) rotate(30deg);
+    opacity: 0.6;
+    filter: blur(12px);
+}
+
+.liquid-shape::after {
+    transform: scale(0.6) rotate(60deg);
+    opacity: 0.4;
+    filter: blur(16px);
+}
+
+/* Padrão Fractal */
+.fractal-pattern {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 100 100"><path fill="none" stroke="rgba(92, 219, 92, 0.15)" d="M30,50 a20,20 0 1,0 40,0 a20,20 0 1,0 -40,0 M40,40 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0 M45,65 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0 M65,45 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" /></svg>');
+    opacity: 0.3;
+    animation: fractal-rotate 40s linear infinite;
+}
+
+/* Partículas Brilhantes */
+.glow-particles::before,
+.glow-particles::after {
+    content: '';
+    position: absolute;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.8), transparent 60%);
+    border-radius: 50%;
+    filter: blur(2px);
+    opacity: 0;
+    animation: float-particle 8s ease-in-out infinite;
+}
+
+.glow-particles::before {
+    width: 20px;
+    height: 20px;
+    top: 20%;
+    left: 30%;
+    animation-delay: 0s;
+    background: radial-gradient(circle at center, rgba(92, 219, 92, 0.8), transparent 60%);
+}
+
+.glow-particles::after {
+    width: 15px;
+    height: 15px;
+    top: 70%;
+    left: 60%;
+    animation-delay: 2s;
+    background: radial-gradient(circle at center, rgba(46, 204, 113, 0.8), transparent 60%);
+}
+
+/* Conteúdo do menu */
+.menu-content {
+    height: 100%;
+    width: 100%;
+    padding: 80px 20px 40px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 2;
+}/* Cabeçalho do Menu */
+.menu-header {
+    padding: 20px 15px 40px;
+}
+
+.menu-logo {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.menu-logo i {
+    font-size: 30px;
+    margin-right: 15px;
+    color: var(--psychedelic-accent);
+    filter: drop-shadow(0 0 8px rgba(92, 219, 92, 0.8));
+    animation: pulse-icon 3s ease-in-out infinite;
+}
+
+.menu-logo h2 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #5cdb5c, #2ecc71);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 5px rgba(92, 219, 92, 0.3);
+}
+
+/* Itens do Menu */
+.menu-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+}
+
+.menu-item {
+    margin: 12px 0;
+    padding: 5px 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    color: rgba(204, 255, 204, 0.9);
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    position: relative;
+    transition: all 0.3s ease;
+    z-index: 1;
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+    background: rgba(58, 28, 83, 0.1);
+    transform-style: preserve-3d;
+}
+
+.menu-link:hover {
+    color: #fff;
+    transform: translateX(5px);
+    background: rgba(58, 28, 83, 0.2);
+}
+
+.menu-link i {
+    margin-right: 15px;
+    font-size: 20px;
+    color: var(--psychedelic-accent);
+    filter: drop-shadow(0 0 5px rgba(92, 219, 92, 0.6));
+    transition: all 0.3s ease;
+}
+
+.menu-link:hover i {
+    transform: scale(1.2) rotate(5deg);
+    color: var(--psychedelic-accent2);
+    filter: drop-shadow(0 0 8px rgba(46, 204, 113, 0.8));
+}
+
+/* Efeito visual ao passar o mouse */
+.link-fx {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        rgba(92, 219, 92, 0.1),
+        rgba(46, 204, 113, 0.2)
+    );
+    border-radius: 12px;
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: all 0.4s ease;
+    z-index: -1;
+}
+
+.menu-link:hover .link-fx {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+/* Visual de item ativo */
+.menu-item.active .menu-link {
+    background: linear-gradient(90deg, 
+        rgba(92, 219, 92, 0.2),
+        rgba(46, 204, 113, 0.3)
+    );
+    box-shadow: 0 0 15px rgba(92, 219, 92, 0.3);
+}
+
+.menu-item.active .menu-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 70%;
+    background: linear-gradient(to bottom, #5cdb5c, #8e44ad);
+    border-radius: 0 4px 4px 0;
+}
+
+/* Rodapé do Menu */
+.menu-footer {
+    padding: 20px 15px;
+    border-top: 1px solid rgba(92, 219, 92, 0.2);
+    margin-top: auto;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(13, 30, 17, 0.4);
+    color: var(--psychedelic-accent);
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+    transform: translateY(-5px) scale(1.1);
+    background: rgba(58, 28, 83, 0.6);
+    color: var(--psychedelic-accent2);
+    box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .side-menu {
+        width: 280px;
+    }
+    
+    .menu-toggle {
+        top: 15px;
+        left: 200px; /* Ajustar para telas menores */
+        width: 45px;
+        height: 45px;
+    }
+    
+    body:not(.menu-active) .menu-toggle {
+        left: 15px;
+    }
+    
+    .menu-logo i {
+        font-size: 24px;
+    }
+    
+    .menu-logo h2 {
+        font-size: 24px;
+    }
+    
+    .menu-link {
+        font-size: 16px;
+        padding: 10px;
+    }
+    
+    .menu-link i {
+        font-size: 18px;
+    }
+}
+
+/* Efeito alucinado quando o menu está ativo no tema psicodélico */
+body.psychedelic-mode.menu-active .main-content {
+    filter: hue-rotate(10deg) saturate(1.2);
+    transform: scale(0.98) translateX(2%);
+}
+
+/* Animações para o menu */
+@keyframes morph-liquid {
+    0% {
+        border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+    }
+    25% {
+        border-radius: 60% 40% 30% 70% / 55% 45% 55% 45%;
+    }
+    50% {
+        border-radius: 30% 70% 50% 50% / 30% 30% 70% 70%;
+    }
+    75% {
+        border-radius: 45% 55% 65% 35% / 65% 35% 45% 55%;
+    }
+    100% {
+        border-radius: 55% 45% 40% 60% / 35% 65% 35% 65%;
+    }
+}
+
+@keyframes rotate-slow {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        opacity: 0.7;
+        width: 120%;
+        height: 120%;
+    }
+    50% {
+        opacity: 0.9;
+        width: 140%;
+        height: 140%;
+    }
+}
+
+@keyframes float-particle {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.2;
+    }
+    25% {
+        opacity: 0.7;
+    }
+    50% {
+        transform: translateY(-20px) scale(1.2);
+        opacity: 0.9;
+    }
+    75% {
+        opacity: 0.7;
+    }
+}
+
+@keyframes pulse-icon {
+    0%, 100% {
+        filter: drop-shadow(0 0 8px rgba(92, 219, 92, 0.5));
+    }
+    50% {
+        filter: drop-shadow(0 0 15px rgba(92, 219, 92, 0.8));
+    }
+}
+
+@keyframes fractal-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Adicionar uma transição suave para o corpo da página quando o menu é aberto */
+#main-content {
+    transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* Ajustes para garantir que body.loaded continue funcionando */
+body.loaded.menu-active #main-content {
+    transform: translateX(0); /* Removendo o deslocamento do conteúdo principal */
+    border-radius: 0;
+    overflow: visible;
+    box-shadow: none;
+}
+
+/* Partículas do menu geradas dinamicamente */
+.menu-particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    animation: float-particle 8s ease-in-out infinite;
+}
+
+/* Folhas de cannabis no menu quando aberto */
+.menu-cannabis-leaf {
+    position: absolute;
+    z-index: 1;
+    opacity: 0;
+    filter: drop-shadow(0 0 8px rgba(92, 219, 92, 0.7));
+    pointer-events: none;
+    animation: menu-leaf-float 5s ease-in-out infinite;
+}
+
+@keyframes menu-leaf-float {
+    0% {
+        opacity: 0;
+        transform: rotate(0deg) translateY(0);
+    }
+    10% {
+        opacity: 0.7;
+    }
+    50% {
+        transform: rotate(180deg) translateY(-30px);
+    }
+    90% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 0;
+        transform: rotate(360deg) translateY(0);
+    }
+}
+
+/* Efeito de ondulação nos links do menu */
+.ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(
+        to right,
+        rgba(92, 219, 92, 0.3),
+        rgba(46, 204, 113, 0.3)
+    );
+    transform: scale(0);
+    animation: ripple 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Melhorias extras para o menu alucinado */
+body.psychedelic-mode .menu-toggle .hamburger span {
+    background: linear-gradient(90deg, #5cdb5c 0%, #8e44ad 100%);
+    box-shadow: 0 0 10px rgba(92, 219, 92, 0.8);
+}
+
+body.psychedelic-mode .menu-toggle:hover .hamburger span {
+    background: linear-gradient(90deg, #8e44ad 0%, #5cdb5c 100%);
+}
+
+body.psychedelic-mode .side-menu {
+    background: rgba(13, 30, 17, 0.6);
+}
+
+/* Melhorar a transição do menu */
+.menu-toggle::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(92, 219, 92, 0.2);
+    border-radius: 50%;
+    transform: scale(0);
+    transition: transform 0.3s ease;
+}
+
+.menu-toggle:hover::before {
+    transform: scale(1.2);
+}
+
+/* Ajustando o conteúdo principal para dar espaço ao menu quando aberto */
+header .container {
+    position: relative;
+    z-index: 1;
+    padding-left: 300px; /* Espaço para o menu lateral */
+    justify-content: flex-start;
+}
+
+/* Ajustes para dispositivos móveis */
+@media (max-width: 768px) {
+    header .container {
+        padding-left: 70px; /* Menor espaço para o menu em dispositivos móveis */
+        justify-content: center;
+    }
+    
+    .logo {
+        margin-left: 0;
+    }
+}
+
+/* Efeito hover para o botão de menu */
+.menu-toggle:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 0 30px rgba(46, 204, 113, 0.7);
+}
+
+/* Cannabis Text Container - making it more hyperrealistic and supernatural */
+.cannabis-text-container {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%) perspective(800px) rotateX(10deg);
+    text-align: center;
+    z-index: 15;
+    width: 320px;
+    background: rgba(10, 20, 15, 0.5);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 
+        0 0 40px rgba(92, 219, 92, 0.8),
+        0 0 80px rgba(46, 204, 113, 0.6),
+        inset 0 0 30px rgba(92, 219, 92, 0.5);
+    backdrop-filter: blur(8px);
+    border: 2px solid rgba(92, 219, 92, 0.5);
+    animation: 
+        supernatural-container 8s ease-in-out infinite alternate,
+        floating-container 15s ease-in-out infinite;
+    transform-style: preserve-3d;
+}
+
+/* 420 Text - more hyperrealistic and hallucinogenic */
+.cannabis-text {
+    font-size: 0;
+    margin: 0 0 20px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    perspective: 1000px;
+    transform-style: preserve-3d;
+}
+
+.cannabis-text .digit {
+    display: inline-block;
+    font-size: 90px;
+    font-weight: 900;
+    font-family: 'Roboto', sans-serif;
+    line-height: 1;
+    color: transparent;
+    background: linear-gradient(135deg, #5cdb5c, #8e44ad, #e74c3c, #3498db);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    text-shadow: 
+        0 0 15px rgba(92, 219, 92, 0.8),
+        0 0 30px rgba(46, 204, 113, 0.7),
+        0 0 50px rgba(92, 219, 92, 0.5);
+    animation: 
+        hyperrealistic-digit 8s ease-in-out infinite alternate,
+        float-3d 5s ease-in-out infinite,
+        gradientFlow 10s linear infinite;
+    transform-style: preserve-3d;
+    position: relative;
+    letter-spacing: -5px;
+}
+
+.cannabis-text .digit:nth-child(1) {
+    transform: translateZ(10px) rotateY(-5deg);
+    animation-delay: 0s;
+}
+
+.cannabis-text .digit:nth-child(2) {
+    transform: translateZ(20px);
+    animation-delay: 0.3s;
+}
+
+.cannabis-text .digit:nth-child(3) {
+    transform: translateZ(10px) rotateY(5deg);
+    animation-delay: 0.6s;
+}
+
+/* Enhanced glow effect with moving shadows */
+.glow-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(
+        circle at center,
+        rgba(92, 219, 92, 0.7),
+        rgba(46, 204, 113, 0.4) 40%,
+        rgba(231, 76, 60, 0.3) 60%,
+        transparent 80%
+    );
+    transform: translate(-50%, -50%);
+    filter: blur(20px);
+    opacity: 0.8;
+    border-radius: 50%;
+    z-index: -1;
+    animation: supernatural-glow 8s ease-in-out infinite;
+}
+
+/* Add holographic effects behind the text */
+.cannabis-text::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: 
+        linear-gradient(45deg, 
+            rgba(92, 219, 92, 0.1) 25%, 
+            transparent 25%, 
+            transparent 50%, 
+            rgba(46, 204, 113, 0.1) 50%, 
+            rgba(46, 204, 113, 0.1) 75%, 
+            transparent 75%, 
+            transparent);
+    background-size: 20px 20px;
+    z-index: -1;
+    opacity: 0.5;
+    animation: holographic-pattern 20s linear infinite;
+    transform: perspective(500px) rotateX(30deg);
+}
+
+/* Slogan with supernatural effect */
+.cannabis-slogan {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+    font-weight: 700;
+    font-style: italic;
+    text-shadow: 
+        0 0 8px rgba(92, 219, 92, 0.8),
+        0 0 15px rgba(46, 204, 113, 0.6);
+    animation: supernatural-text 5s ease-in-out infinite alternate;
+}
+
+/* New animations for supernatural effects */
+@keyframes supernatural-container {
+    0% {
+        box-shadow: 
+            0 0 40px rgba(92, 219, 92, 0.8),
+            0 0 80px rgba(46, 204, 113, 0.6),
+            inset 0 0 30px rgba(92, 219, 92, 0.5);
+        border-color: rgba(92, 219, 92, 0.5);
+    }
+    33% {
+        box-shadow: 
+            0 0 50px rgba(46, 204, 113, 0.8),
+            0 0 90px rgba(92, 219, 92, 0.6),
+            inset 0 0 40px rgba(46, 204, 113, 0.5);
+        border-color: rgba(46, 204, 113, 0.5);
+    }
+    66% {
+        box-shadow: 
+            0 0 60px rgba(231, 76, 60, 0.8),
+            0 0 100px rgba(52, 152, 219, 0.6),
+            inset 0 0 35px rgba(231, 76, 60, 0.5);
+        border-color: rgba(231, 76, 60, 0.5);
+    }
+    100% {
+        box-shadow: 
+            0 0 70px rgba(52, 152, 219, 0.8),
+            0 0 110px rgba(231, 76, 60, 0.6),
+            inset 0 0 45px rgba(52, 152, 219, 0.5);
+        border-color: rgba(52, 152, 219, 0.5);
+    }
+}
+
+@keyframes floating-container {
+    0%, 100% {
+        transform: translate(-50%, -50%) perspective(800px) rotateX(10deg) translateY(0);
+    }
+    25% {
+        transform: translate(-50%, -50%) perspective(800px) rotateX(5deg) translateY(-10px);
+    }
+    50% {
+        transform: translate(-50%, -50%) perspective(800px) rotateX(15deg) translateY(0);
+    }
+    75% {
+        transform: translate(-50%, -50%) perspective(800px) rotateX(5deg) translateY(10px);
+    }
+}
+
+@keyframes hyperrealistic-digit {
+    0% {
+        text-shadow: 
+            0 0 15px rgba(92, 219, 92, 0.8),
+            0 0 30px rgba(46, 204, 113, 0.7),
+            0 0 50px rgba(92, 219, 92, 0.5);
+        transform: translateZ(10px) scale(1) rotateY(0deg);
+        filter: brightness(1) contrast(1);
+    }
+    33% {
+        text-shadow: 
+            0 0 20px rgba(46, 204, 113, 0.8),
+            0 0 40px rgba(92, 219, 92, 0.7),
+            0 0 60px rgba(46, 204, 113, 0.5);
+        transform: translateZ(30px) scale(1.2) rotateY(5deg);
+        filter: brightness(1.2) contrast(1.1);
+    }
+    66% {
+        text-shadow: 
+            0 0 25px rgba(231, 76, 60, 0.8),
+            0 0 45px rgba(52, 152, 219, 0.7),
+            0 0 65px rgba(231, 76, 60, 0.5);
+        transform: translateZ(50px) scale(1.1) rotateY(-5deg);
+        filter: brightness(1.3) contrast(1.2);
+    }
+    100% {
+        text-shadow: 
+            0 0 30px rgba(52, 152, 219, 0.8),
+            0 0 50px rgba(231, 76, 60, 0.7),
+            0 0 70px rgba(52, 152, 219, 0.5);
+        transform: translateZ(20px) scale(1.15) rotateY(0deg);
+        filter: brightness(1.1) contrast(1.1);
+    }
+}
+
+@keyframes gradientFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes supernatural-glow {
+    0% {
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(1);
+        filter: hue-rotate(0deg) blur(20px);
+    }
+    33% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(1.2);
+        filter: hue-rotate(120deg) blur(25px);
+    }
+    66% {
+        opacity: 0.7;
+        transform: translate(-50%, -50%) scale(1.1);
+        filter: hue-rotate(240deg) blur(30px);
+    }
+    100% {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(1.3);
+        filter: hue-rotate(360deg) blur(20px);
+    }
+}
+
+@keyframes holographic-pattern {
+    0% {
+        background-position: 0 0;
+        opacity: 0.3;
+    }
+    25% {
+        opacity: 0.5;
+    }
+    50% {
+        background-position: 100% 100%;
+        opacity: 0.7;
+    }
+    75% {
+        opacity: 0.5;
+    }
+    100% {
+        background-position: 0 0;
+        opacity: 0.3;
+    }
+}
+
+@keyframes supernatural-text {
+    0% {
+        opacity: 0.8;
+        transform: scale(1);
+        letter-spacing: 2px;
+        text-shadow: 
+            0 0 8px rgba(92, 219, 92, 0.8),
+            0 0 15px rgba(46, 204, 113, 0.6);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+        letter-spacing: 3px;
+        text-shadow: 
+            0 0 12px rgba(46, 204, 113, 0.8),
+            0 0 20px rgba(92, 219, 92, 0.6);
+    }
+    100% {
+        opacity: 0.9;
+        transform: scale(1);
+        letter-spacing: 2px;
+        text-shadow: 
+            0 0 10px rgba(92, 219, 92, 0.8),
+            0 0 18px rgba(46, 204, 113, 0.6);
+    }
+}
+
+@keyframes float-3d {
+    0%, 100% {
+        transform: translateZ(0) translateY(0) rotateX(0deg);
+    }
+    25% {
+        transform: translateZ(15px) translateY(-5px) rotateX(5deg);
+    }
+    50% {
+        transform: translateZ(25px) translateY(0) rotateX(0deg);
+    }
+    75% {
+        transform: translateZ(15px) translateY(5px) rotateX(-5deg);
+    }
+}
+
+/* Estilos para o efeito ilusionístico do 420 */
+.cannabis-text {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+    perspective: 1000px;
+    transform-style: preserve-3d;
+}
+
+.digit-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80px;
+    height: 120px;
+    transform-style: preserve-3d;
+    transition: transform 0.5s ease;
+}
+
+.digit-container.animate {
+    animation: float-digit 4s ease-in-out infinite;
+}
+
+.digit-container.pulse {
+    animation: float-digit 4s ease-in-out infinite, pulse-digit 2s ease-in-out infinite;
+}
+
+.digit {
+    font-size: 120px;
+    font-weight: bold;
+    color: var(--psychedelic-accent);
+    text-shadow: 0 0 15px var(--psychedelic-accent), 
+                 0 0 25px rgba(92, 219, 92, 0.8);
+    position: relative;
+    z-index: 2;
+    transform-style: preserve-3d;
+    animation: rotate-digit 8s infinite linear;
+}
+
+.digit-shadow {
+    position: absolute;
+    font-size: 120px;
+    font-weight: bold;
+    color: transparent;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    filter: blur(4px);
+    opacity: 0.7;
+    z-index: 1;
+    transform: translateZ(-10px) translateY(5px);
+    animation: shadow-move 3s ease-in-out infinite alternate;
+}
+
+.digit-glow {
+    position: absolute;
+    font-size: 120px;
+    font-weight: bold;
+    color: transparent;
+    background: linear-gradient(45deg, var(--psychedelic-accent), var(--psychedelic-accent2));
+    background-clip: text;
+    -webkit-background-clip: text;
+    filter: blur(8px);
+    opacity: 0.6;
+    z-index: 1;
+    animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.digit-echo {
+    position: absolute;
+    font-size: 120px;
+    font-weight: bold;
+    color: var(--psychedelic-accent);
+    opacity: 0;
+    z-index: 1;
+    animation: echo-effect 4s ease-in-out infinite;
+}
+
+.fractal-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 300px;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.fractal-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150px;
+    height: 150px;
+    border: 3px solid var(--psychedelic-accent);
+    border-radius: 50%;
+    opacity: 0.5;
+    filter: blur(2px);
+    animation: expand-ring 4s ease-in-out infinite, rotate-y 8s linear infinite;
+}
+
+.fractal-shape {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(0deg);
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, transparent 30%, var(--psychedelic-accent) 31%, var(--psychedelic-accent) 33%, transparent 34%), 
+                radial-gradient(circle, transparent 50%, var(--psychedelic-accent) 51%, var(--psychedelic-accent) 53%, transparent 54%);
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px;
+    opacity: 0.3;
+    filter: blur(1px);
+    animation: rotate-z 20s linear infinite reverse, pulse-opacity 6s ease-in-out infinite;
+    pointer-events: none;
+    mix-blend-mode: screen;
+}
+
+.glow-effect {
+    position: absolute;
+    width: 300px;
+    height: 100px;
+    background: radial-gradient(ellipse, var(--psychedelic-accent) 0%, transparent 70%);
+    filter: blur(20px);
+    opacity: 0.3;
+    z-index: 0;
+    animation: pulse-glow 4s ease-in-out infinite;
+}
+
+/* Animações para o efeito 420 */
+@keyframes float-digit {
+    0%, 100% { transform: translateY(0) rotateX(0); }
+    50% { transform: translateY(-10px) rotateX(5deg); }
+}
+
+@keyframes pulse-digit {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes rotate-digit {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(360deg); }
+}
+
+@keyframes shadow-move {
+    0% { transform: translateZ(-10px) translateY(5px) translateX(-5px); }
+    100% { transform: translateZ(-10px) translateY(15px) translateX(5px); }
+}
+
+@keyframes glow-pulse {
+    0%, 100% { opacity: 0.2; filter: blur(5px); }
+    50% { opacity: 0.6; filter: blur(15px); }
+}
+
+@keyframes echo-effect {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes expand-ring {
+    0%, 100% { width: 150px; height: 150px; opacity: 0.5; }
+    50% { width: 200px; height: 200px; opacity: 0.2; }
+}
+
+@keyframes pulse-opacity {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.3; filter: blur(20px); }
+    50% { opacity: 0.5; filter: blur(30px); }
+}
+
+/* Media queries para ajustar o tamanho em dispositivos menores */
+@media (max-width: 768px) {
+    .digit-container {
+        width: 60px;
+        height: 90px;
+    }
+    
+    .digit, .digit-shadow, .digit-glow, .digit-echo {
+        font-size: 90px;
+    }
+    
+    .fractal-overlay,
+    .glow-effect {
+        width: 250px;
+    }
+}

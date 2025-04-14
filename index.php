@@ -19,6 +19,87 @@ $gridNews = array_slice($allNews, 0, 12); // Primeiras 12 notícias para o grid 
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Menu Lateral Alucinado -->
+    <div class="psychedelic-menu-container">
+        <div class="menu-toggle">
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <nav class="side-menu">
+            <div class="menu-background">
+                <div class="liquid-shape"></div>
+                <div class="fractal-pattern"></div>
+                <div class="glow-particles"></div>
+            </div>
+            
+            <div class="menu-content">
+                <div class="menu-header">
+                    <div class="menu-logo">
+                        <i class="fas fa-shield-alt"></i>
+                        <h2>CyberNews</h2>
+                    </div>
+                </div>
+                
+                <ul class="menu-items">
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <i class="fas fa-home"></i>
+                            <span>Início</span>
+                            <div class="link-fx"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <i class="fas fa-newspaper"></i>
+                            <span>Notícias</span>
+                            <div class="link-fx"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <i class="fas fa-lock"></i>
+                            <span>Segurança</span>
+                            <div class="link-fx"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <i class="fas fa-bug"></i>
+                            <span>Vulnerabilidades</span>
+                            <div class="link-fx"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <i class="fas fa-virus"></i>
+                            <span>Malware</span>
+                            <div class="link-fx"></div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <i class="fas fa-user-secret"></i>
+                            <span>Privacidade</span>
+                            <div class="link-fx"></div>
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="menu-footer">
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
     <!-- Preloader - fully covers screen until loaded -->
     <div id="preloader">
         <div class="circuit-lines"></div>
@@ -130,50 +211,6 @@ $gridNews = array_slice($allNews, 0, 12); // Primeiras 12 notícias para o grid 
                     </div>
                     <div class="fractal-shape hexagon"></div>
                     <div class="fractal-shape triangle"></div>
-                    
-                    <!-- Cannabis leaves em órbita -->
-                    <div class="fractal-leaf">
-                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="#5cdb5c" d="M50,10 C60,25 80,20 85,30 C90,40 80,50 70,55 C80,60 85,75 80,85 C75,95 60,90 50,85 C40,90 25,95 20,85 C15,75 20,60 30,55 C20,50 10,40 15,30 C20,20 40,25 50,10 Z" />
-                        </svg>
-                    </div>
-                    <div class="fractal-leaf">
-                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="#5cdb5c" d="M50,10 C60,25 80,20 85,30 C90,40 80,50 70,55 C80,60 85,75 80,85 C75,95 60,90 50,85 C40,90 25,95 20,85 C15,75 20,60 30,55 C20,50 10,40 15,30 C20,20 40,25 50,10 Z" />
-                        </svg>
-                    </div>
-                    <div class="fractal-leaf">
-                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="#5cdb5c" d="M50,10 C60,25 80,20 85,30 C90,40 80,50 70,55 C80,60 85,75 80,85 C75,95 60,90 50,85 C40,90 25,95 20,85 C15,75 20,60 30,55 C20,50 10,40 15,30 C20,20 40,25 50,10 Z" />
-                        </svg>
-                    </div>
-                    <div class="fractal-leaf">
-                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="#5cdb5c" d="M50,10 C60,25 80,20 85,30 C90,40 80,50 70,55 C80,60 85,75 80,85 C75,95 60,90 50,85 C40,90 25,95 20,85 C15,75 20,60 30,55 C20,50 10,40 15,30 C20,20 40,25 50,10 Z" />
-                        </svg>
-                    </div>
-                    
-                    <!-- Cogumelos em órbita -->
-                    <div class="fractal-mushroom">
-                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="#8e44ad" d="M50,20 C35,20 20,40 20,60 C20,75 35,85 50,85 C65,85 80,75 80,60 C80,40 65,20 50,20 Z M50,40 C45,60 40,70 30,75 C40,80 60,80 70,75 C60,70 55,60 50,40 Z" />
-                        </svg>
-                    </div>
-                    <div class="fractal-mushroom">
-                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="#8e44ad" d="M50,20 C35,20 20,40 20,60 C20,75 35,85 50,85 C65,85 80,75 80,60 C80,40 65,20 50,20 Z M50,40 C45,60 40,70 30,75 C40,80 60,80 70,75 C60,70 55,60 50,40 Z" />
-                        </svg>
-                    </div>
-                    <div class="fractal-mushroom">
-                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="#8e44ad" d="M50,20 C35,20 20,40 20,60 C20,75 35,85 50,85 C65,85 80,75 80,60 C80,40 65,20 50,20 Z M50,40 C45,60 40,70 30,75 C40,80 60,80 70,75 C60,70 55,60 50,40 Z" />
-                        </svg>
-                    </div>
-                    <div class="fractal-mushroom">
-                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="#8e44ad" d="M50,20 C35,20 20,40 20,60 C20,75 35,85 50,85 C65,85 80,75 80,60 C80,40 65,20 50,20 Z M50,40 C45,60 40,70 30,75 C40,80 60,80 70,75 C60,70 55,60 50,40 Z" />
-                        </svg>
-                    </div>
                     
                     <!-- Dupla hélice de DNA -->
                     <div class="dna-strand">
