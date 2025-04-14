@@ -47,7 +47,7 @@ $gridNews = array_slice($allNews, 0, 12); // Primeiras 12 notícias para o grid 
                     <div class="bubble psychedelic"></div>
                 </div>
             </div>
-            <div class="loading-text glitch-text">CARREGANDO CYBERNEWS</div>
+            <div class="loading-text">CARREGANDO CYBERNEWS</div>
             <div class="progress-bars">
                 <div class="progress-bar"></div>
                 <div class="progress-bar"></div>
@@ -64,6 +64,12 @@ $gridNews = array_slice($allNews, 0, 12); // Primeiras 12 notícias para o grid 
                     <h1>CyberNews</h1>
                 </div>
                 <p class="tagline">Notícias de segurança cibernética em um só lugar</p>
+                <div class="theme-toggle">
+                    <button id="theme-switch" title="Alternar tema">
+                        <i class="fas fa-moon"></i>
+                        <i class="fas fa-cannabis"></i>
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -115,13 +121,83 @@ $gridNews = array_slice($allNews, 0, 12); // Primeiras 12 notícias para o grid 
             </section>
 
             <div id="loading" class="loading-indicator" style="display: none;">
-                <div class="loading-bubbles">
-                    <div class="bubble"></div>
-                    <div class="bubble"></div>
-                    <div class="bubble"></div>
-                    <div class="bubble"></div>
-                    <div class="bubble"></div>
-                    <div class="bubble"></div>
+                <div class="loading-fractals">
+                    <div class="fractal-core"></div>
+                    <div class="fractal-pattern">
+                        <div class="fractal-ring"></div>
+                        <div class="fractal-ring"></div>
+                        <div class="fractal-ring"></div>
+                    </div>
+                    <div class="fractal-shape hexagon"></div>
+                    <div class="fractal-shape triangle"></div>
+                    
+                    <!-- Cannabis leaves em órbita -->
+                    <div class="fractal-leaf">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#5cdb5c" d="M50,10 C60,25 80,20 85,30 C90,40 80,50 70,55 C80,60 85,75 80,85 C75,95 60,90 50,85 C40,90 25,95 20,85 C15,75 20,60 30,55 C20,50 10,40 15,30 C20,20 40,25 50,10 Z" />
+                        </svg>
+                    </div>
+                    <div class="fractal-leaf">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#5cdb5c" d="M50,10 C60,25 80,20 85,30 C90,40 80,50 70,55 C80,60 85,75 80,85 C75,95 60,90 50,85 C40,90 25,95 20,85 C15,75 20,60 30,55 C20,50 10,40 15,30 C20,20 40,25 50,10 Z" />
+                        </svg>
+                    </div>
+                    <div class="fractal-leaf">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#5cdb5c" d="M50,10 C60,25 80,20 85,30 C90,40 80,50 70,55 C80,60 85,75 80,85 C75,95 60,90 50,85 C40,90 25,95 20,85 C15,75 20,60 30,55 C20,50 10,40 15,30 C20,20 40,25 50,10 Z" />
+                        </svg>
+                    </div>
+                    <div class="fractal-leaf">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#5cdb5c" d="M50,10 C60,25 80,20 85,30 C90,40 80,50 70,55 C80,60 85,75 80,85 C75,95 60,90 50,85 C40,90 25,95 20,85 C15,75 20,60 30,55 C20,50 10,40 15,30 C20,20 40,25 50,10 Z" />
+                        </svg>
+                    </div>
+                    
+                    <!-- Cogumelos em órbita -->
+                    <div class="fractal-mushroom">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#8e44ad" d="M50,20 C35,20 20,40 20,60 C20,75 35,85 50,85 C65,85 80,75 80,60 C80,40 65,20 50,20 Z M50,40 C45,60 40,70 30,75 C40,80 60,80 70,75 C60,70 55,60 50,40 Z" />
+                        </svg>
+                    </div>
+                    <div class="fractal-mushroom">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#8e44ad" d="M50,20 C35,20 20,40 20,60 C20,75 35,85 50,85 C65,85 80,75 80,60 C80,40 65,20 50,20 Z M50,40 C45,60 40,70 30,75 C40,80 60,80 70,75 C60,70 55,60 50,40 Z" />
+                        </svg>
+                    </div>
+                    <div class="fractal-mushroom">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#8e44ad" d="M50,20 C35,20 20,40 20,60 C20,75 35,85 50,85 C65,85 80,75 80,60 C80,40 65,20 50,20 Z M50,40 C45,60 40,70 30,75 C40,80 60,80 70,75 C60,70 55,60 50,40 Z" />
+                        </svg>
+                    </div>
+                    <div class="fractal-mushroom">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#8e44ad" d="M50,20 C35,20 20,40 20,60 C20,75 35,85 50,85 C65,85 80,75 80,60 C80,40 65,20 50,20 Z M50,40 C45,60 40,70 30,75 C40,80 60,80 70,75 C60,70 55,60 50,40 Z" />
+                        </svg>
+                    </div>
+                    
+                    <!-- Dupla hélice de DNA -->
+                    <div class="dna-strand">
+                        <div class="dna-point"></div>
+                        <div class="dna-point"></div>
+                        <div class="dna-point"></div>
+                        <div class="dna-point"></div>
+                        <div class="dna-point"></div>
+                        <div class="dna-point"></div>
+                        <div class="dna-point"></div>
+                        <div class="dna-point"></div>
+                        <div class="dna-point"></div>
+                        <div class="dna-point"></div>
+                    </div>
+                    
+                    <!-- Partículas de energia -->
+                    <div class="energy-particle"></div>
+                    <div class="energy-particle"></div>
+                    <div class="energy-particle"></div>
+                    <div class="energy-particle"></div>
+                    <div class="energy-particle"></div>
+                    <div class="energy-particle"></div>
+                    <div class="energy-particle"></div>
+                    <div class="energy-particle"></div>
                 </div>
                 <div class="loading-text">Carregando mais notícias...</div>
             </div>

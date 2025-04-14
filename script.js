@@ -1,68 +1,30 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Preloader handling
+    // Preloader handling - deve ser o primeiro para evitar conflitos
     const preloader = document.getElementById('preloader');
     const mainContent = document.getElementById('main-content');
     
-    // Criar efeito de texto binário
-    if (document.querySelector('.binary-text')) {
-        generateBinaryText();
-    }
-    
-    // Função para gerar texto binário aleatório
-    function generateBinaryText() {
-        const binaryText = document.querySelector('.binary-text');
-        let binaryString = '';
-        
-        for (let i = 0; i < 500; i++) {
-            binaryString += Math.floor(Math.random() * 2);
-            if (i % 8 === 7) binaryString += ' ';
-            if (i % 64 === 63) binaryString += '\n';
-        }
-        
-        binaryText.setAttribute('data-text', binaryString);
-        
-        // Atualizar periodicamente
-        setInterval(() => {
-            let newBinary = '';
-            for (let i = 0; i < 500; i++) {
-                newBinary += Math.floor(Math.random() * 2);
-                if (i % 8 === 7) newBinary += ' ';
-                if (i % 64 === 63) newBinary += '\n';
-            }
-            binaryText.setAttribute('data-text', newBinary);
-        }, 2000);
-    }
-    
-    // Animação psicodélica das bolhas
-    const psychedelicBubbles = document.querySelectorAll('.bubble.psychedelic');
-    
-    // Aplicar cores aleatórias às bolhas para efeito mais alucinógeno
-    psychedelicBubbles.forEach(bubble => {
-        setInterval(() => {
-            const hue = Math.floor(Math.random() * 360);
-            const saturation = 80 + Math.floor(Math.random() * 20);
-            const lightness = 50 + Math.floor(Math.random() * 30);
-            
-            bubble.style.boxShadow = `0 0 ${20 + Math.random() * 40}px hsl(${hue}, ${saturation}%, ${lightness}%), 
-                                      0 0 ${40 + Math.random() * 60}px hsl(${(hue + 60) % 360}, ${saturation}%, ${lightness}%),
-                                      inset 0 0 ${15 + Math.random() * 15}px rgba(255, 255, 255, 0.8)`;
-        }, 1000 + Math.random() * 1000); // Tempo aleatório para cada bolha
-    });
-    
-    // Make sure main content is initially hidden
+    // Garantir que o conteúdo principal esteja inicialmente oculto
     if (mainContent) {
         mainContent.style.opacity = '0';
         mainContent.style.visibility = 'hidden';
     }
     
-    // Function to handle the page loaded state
+    // Criar efeito de texto binário no preloader
+    if (document.querySelector('.binary-text')) {
+        generateBinaryText();
+    }
+    
+    // Animação das bolhas psicodélicas no preloader
+    animatePsychedelicBubbles();
+    
+    // Função para mostrar a página quando tudo estiver carregado
     function showPage() {
-        // Force the preloader to show for at least 2 seconds for better UX
+        // Força o preloader a mostrar por pelo menos 2 segundos
         setTimeout(() => {
-            // Add loaded class to body to trigger transitions
+            // Adiciona a classe loaded ao body para acionar transições
             document.body.classList.add('loaded');
             
-            // Explicitar a visibilidade do conteúdo principal após o tempo de transição
+            // Tornar o conteúdo principal visível após a transição
             setTimeout(() => {
                 if (mainContent) {
                     mainContent.style.opacity = '1';
@@ -73,16 +35,258 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (preloader) {
                     preloader.style.display = 'none';
                 }
-            }, 800); // Tempo compatível com a transição CSS
+            }, 800);
         }, 2000);
     }
     
-    // If all resources are already loaded
+    // Se todos os recursos já estiverem carregados
     if (document.readyState === 'complete') {
         showPage();
     } else {
-        // Wait for everything to load then show page
+        // Espera tudo carregar e então mostra a página
         window.addEventListener('load', showPage);
+    }
+    
+    // Theme switching functionality
+    const themeSwitch = document.getElementById('theme-switch');
+    
+    if (themeSwitch) {
+        const moonIcon = themeSwitch.querySelector('.fa-moon');
+        const cannabisIcon = themeSwitch.querySelector('.fa-cannabis');
+        const sunIcon = document.createElement('i');
+        sunIcon.className = 'fas fa-sun';
+        themeSwitch.appendChild(sunIcon);
+        
+        let currentTheme = localStorage.getItem('theme') || 'psychedelic';
+        
+        // Aplicar tema salvo ao carregar a página
+        applyTheme(currentTheme);
+        
+        // Alternar tema ao clicar no botão
+        themeSwitch.addEventListener('click', function() {
+            switch(currentTheme) {
+                case 'psychedelic':
+                    currentTheme = 'dark';
+                    break;
+                case 'dark':
+                    currentTheme = 'light';
+                    break;
+                default:
+                    currentTheme = 'psychedelic';
+            }
+            
+            applyTheme(currentTheme);
+            localStorage.setItem('theme', currentTheme);
+        });
+        
+        // Aplicar o tema selecionado
+        function applyTheme(theme) {
+            // Remover classes de tema existentes
+            document.body.classList.remove('dark-mode', 'psychedelic-mode');
+            
+            // Remover elementos psicodélicos existentes
+            document.querySelectorAll('.cannabis-leaf').forEach(el => el.remove());
+            
+            // Esconder todos os ícones primeiro
+            moonIcon.style.display = 'none';
+            cannabisIcon.style.display = 'none';
+            sunIcon.style.display = 'none';
+            
+            // Aplicar tema selecionado e mostrar ícone apropriado
+            switch(theme) {
+                case 'dark':
+                    document.body.classList.add('dark-mode');
+                    moonIcon.style.display = 'flex';
+                    break;
+                case 'psychedelic':
+                    document.body.classList.add('psychedelic-mode');
+                    cannabisIcon.style.display = 'flex';
+                    createPsychedelicElements();
+                    setupPsychedelicEffects();
+                    break;
+                case 'light':
+                    sunIcon.style.display = 'flex';
+                    break;
+            }
+        }
+    }
+    
+    // Função para criar elementos psicodélicos
+    function createPsychedelicElements() {
+        // Criar um número maior de folhas de cannabis
+        for (let i = 0; i < 25; i++) {
+            createFloatingCannabisLeaf();
+        }
+        
+        // Configurar intervalo para criar novas folhas periodicamente
+        let psychedelicInterval = setInterval(() => {
+            // Só continua se estiver no modo psicodélico
+            if (!document.body.classList.contains('psychedelic-mode')) {
+                clearInterval(psychedelicInterval);
+                return;
+            }
+            
+            // Adicionar mais folhas de cannabis com frequência
+            createFloatingCannabisLeaf();
+            
+        }, 2000); // Criar mais frequentemente (a cada 2 segundos)
+    }
+    
+    // Configurar efeitos para o modo psicodélico
+    function setupPsychedelicEffects() {
+        // Adicionar atributo data-text a todos os títulos para o efeito glitch
+        document.querySelectorAll('.news-content h3').forEach(heading => {
+            heading.setAttribute('data-text', heading.textContent);
+        });
+        
+        // Adicionar efeito de distorção ao rolar
+        let scrollTimer;
+        window.addEventListener('scroll', () => {
+            if (document.body.classList.contains('psychedelic-mode')) {
+                document.body.classList.add('scrolling');
+                
+                clearTimeout(scrollTimer);
+                scrollTimer = setTimeout(() => {
+                    document.body.classList.remove('scrolling');
+                }, 100);
+            }
+        });
+        
+        // Adicionar efeitos de cor psicodélica no hover
+        document.querySelectorAll('.news-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                if (!document.body.classList.contains('psychedelic-mode')) return;
+                
+                const randomHue = Math.floor(Math.random() * 30) - 15;
+                card.style.filter = `hue-rotate(${randomHue}deg)`;
+                
+                // Chance de criar uma folha ao passar o mouse
+                setTimeout(() => {
+                    if (Math.random() > 0.6 && document.body.classList.contains('psychedelic-mode')) {
+                        createFloatingCannabisLeaf();
+                    }
+                }, 300);
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.filter = '';
+            });
+        });
+    }
+    
+    // Funções de utilidade para criar elementos no preloader e modo psicodélico
+    
+    // Função para gerar texto binário aleatório
+    function generateBinaryText() {
+        const binaryText = document.querySelector('.binary-text');
+        if (!binaryText) return;
+        
+        let binaryString = '';
+        for (let i = 0; i < 500; i++) {
+            binaryString += Math.floor(Math.random() * 2);
+            if (i % 8 === 7) binaryString += ' ';
+            if (i % 64 === 63) binaryString += '\n';
+        }
+        
+        binaryText.setAttribute('data-text', binaryString);
+        
+        // Atualizar periodicamente
+        setInterval(() => {
+            if (!document.body.classList.contains('loaded')) {
+                let newBinary = '';
+                for (let i = 0; i < 500; i++) {
+                    newBinary += Math.floor(Math.random() * 2);
+                    if (i % 8 === 7) newBinary += ' ';
+                    if (i % 64 === 63) newBinary += '\n';
+                }
+                binaryText.setAttribute('data-text', newBinary);
+            }
+        }, 2000);
+    }
+    
+    // Animar as bolhas psicodélicas no preloader
+    function animatePsychedelicBubbles() {
+        const psychedelicBubbles = document.querySelectorAll('.bubble.psychedelic');
+        if (!psychedelicBubbles.length) return;
+        
+        // Aplicar cores aleatórias às bolhas para efeito mais alucinógeno
+        psychedelicBubbles.forEach(bubble => {
+            setInterval(() => {
+                if (!document.body.classList.contains('loaded')) {
+                    const hue = Math.floor(Math.random() * 360);
+                    const saturation = 80 + Math.floor(Math.random() * 20);
+                    const lightness = 50 + Math.floor(Math.random() * 30);
+                    
+                    bubble.style.boxShadow = `0 0 ${20 + Math.random() * 40}px hsl(${hue}, ${saturation}%, ${lightness}%), 
+                                          0 0 ${40 + Math.random() * 60}px hsl(${(hue + 60) % 360}, ${saturation}%, ${lightness}%),
+                                          inset 0 0 ${15 + Math.random() * 15}px rgba(255, 255, 255, 0.8)`;
+                }
+            }, 1000 + Math.random() * 1000);
+        });
+    }
+    
+    // Criar um elemento de folha de cannabis flutuante
+    function createFloatingCannabisLeaf() {
+        if (!document.body.classList.contains('psychedelic-mode')) return;
+        
+        const leaf = document.createElement('div');
+        leaf.className = 'cannabis-leaf';
+        
+        // Tamanho mais variado para as folhas
+        const size = 20 + Math.random() * 60;
+        
+        // Mais estilos diferentes de folha de cannabis para mais variedade
+        const leafStyle = Math.floor(Math.random() * 3);
+        
+        if (leafStyle === 0) {
+            // Estilo original
+            leaf.innerHTML = '<svg width="'+ size +'" height="'+ size +'" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50 10C40 30 20 40 10 50C20 60 40 70 50 90C60 70 80 60 90 50C80 40 60 30 50 10Z" fill="#5cdb5c"/><path d="M50 10L50 90" stroke="#5cdb5c" stroke-width="3"/><path d="M30 40L70 60M30 60L70 40" stroke="#5cdb5c" stroke-width="2"/></svg>';
+        } else if (leafStyle === 1) {
+            // Estilo alternativo - folha mais detalhada
+            leaf.innerHTML = '<svg width="'+ size +'" height="'+ size +'" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50 10C45 20 40 25 35 30C30 35 20 40 15 42C10 45 5 47 5 50C5 53 10 55 15 58C20 60 30 65 35 70C40 75 45 80 50 90C55 80 60 75 65 70C70 65 80 60 85 58C90 55 95 53 95 50C95 47 90 45 85 42C80 40 70 35 65 30C60 25 55 20 50 10Z" fill="#5cdb5c"/><path d="M50 10L50 90" stroke="#5cdb5c" stroke-width="2"/><path d="M25 40L75 60M25 60L75 40" stroke="#5cdb5c" stroke-width="1.5"/><path d="M15 50L85 50" stroke="#5cdb5c" stroke-width="1.5"/><path d="M30 30C40 40 60 40 70 30" stroke="#5cdb5c" stroke-width="1.5"/><path d="M30 70C40 60 60 60 70 70" stroke="#5cdb5c" stroke-width="1.5"/></svg>';
+        } else {
+            // Terceiro estilo - folha mais simples e elegante
+            leaf.innerHTML = '<svg width="'+ size +'" height="'+ size +'" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50 5C45 15 40 25 35 35C30 45 25 50 20 55C15 60 10 55 10 50C10 45 15 40 20 35C25 30 35 25 35 25C35 25 30 35 25 45C20 55 15 65 15 65C20 60 25 55 30 50C35 45 45 35 45 35C45 35 40 45 35 55C30 65 25 75 30 80C35 85 40 80 45 75C50 70 55 65 55 65C55 65 50 75 50 85C50 95 50 95 50 95C50 95 50 95 50 85C50 75 45 65 45 65C45 65 50 70 55 75C60 80 65 85 70 80C75 75 70 65 65 55C60 45 55 35 55 35C55 35 65 45 70 50C75 55 80 60 85 65C85 65 80 55 75 45C70 35 65 25 65 25C65 25 75 30 80 35C85 40 90 45 90 50C90 55 85 60 80 55C75 50 70 45 65 35C60 25 55 15 50 5Z" fill="#5cdb5c"/></svg>';
+        }
+        
+        // Posicionamento mais variado na tela
+        // Algumas folhas vêm da esquerda, direita, cima ou baixo
+        const randomPos = Math.floor(Math.random() * 4);
+        switch (randomPos) {
+            case 0: // Da esquerda
+                leaf.style.top = Math.random() * 100 + 'vh';
+                leaf.style.left = -size + 'px';
+                break;
+            case 1: // Da direita
+                leaf.style.top = Math.random() * 100 + 'vh';
+                leaf.style.left = 'calc(100vw + ' + size + 'px)';
+                leaf.style.transform = 'scaleX(-1)'; // Espelhar horizontalmente
+                break;
+            case 2: // De cima
+                leaf.style.top = -size + 'px';
+                leaf.style.left = Math.random() * 100 + 'vw';
+                leaf.style.transform = 'rotate(90deg)'; // Girar 90 graus
+                break;
+            case 3: // De baixo - novas folhas subindo
+                leaf.style.bottom = -size + 'px';
+                leaf.style.left = Math.random() * 100 + 'vw';
+                leaf.style.transform = 'rotate(-90deg)'; // Girar -90 graus
+                leaf.classList.add('rising');
+                break;
+        }
+        
+        // Mais variação nas animações, algumas mais lentas para movimento mais suave
+        leaf.style.animationDelay = Math.random() * 8 + 's';
+        leaf.style.animationDuration = 20 + Math.random() * 30 + 's'; // Durações mais longas para movimento mais suave
+        
+        document.body.appendChild(leaf);
+        
+        // Remover após o término da animação
+        setTimeout(() => {
+            if (leaf.parentNode) {
+                leaf.parentNode.removeChild(leaf);
+            }
+        }, 50000); // Tempo maior para acomodar animações mais longas
     }
     
     // Configuração do Carousel
@@ -381,5 +585,85 @@ document.addEventListener('DOMContentLoaded', function() {
             scrollTimer = null;
         }, 300);
     });
+
+    // Inicializar o carregamento automático se houver um botão de carregar mais
+    if (loadMoreBtn && newsGrid) {
+        // Verifica se já existem notícias suficientes na página
+        const existingNewsCount = newsGrid.querySelectorAll('.news-card').length;
+        if (existingNewsCount < 6 && hasMore && !isLoading) {
+            // Se houver menos de 6 notícias, carrega mais automaticamente
+            setTimeout(() => {
+                loadMoreNews();
+            }, 1000);
+        }
+        
+        // Garante que o botão exibe o estado correto
+        updateButtonState();
+    }
+
+    // Função para criar elementos do preloader canábico
+    function createCannabisPreloaderElements() {
+        const preloader = document.getElementById('preloader');
+        
+        // Adicionar folhas de cannabis ao preloader
+        for (let i = 0; i < 10; i++) {
+            const leaf = document.createElement('div');
+            leaf.className = 'cannabis-leaf preloader-leaf';
+            
+            // Determinar tamanho aleatório
+            const size = Math.random() * 40 + 20;
+            leaf.style.width = `${size}px`;
+            leaf.style.height = `${size}px`;
+            
+            // Posição aleatória
+            leaf.style.top = `${Math.random() * 100}%`;
+            leaf.style.left = `${Math.random() * 100}%`;
+            
+            // Rotação aleatória
+            leaf.style.transform = `rotate(${Math.random() * 360}deg)`;
+            
+            // Atraso de animação aleatório
+            leaf.style.animationDelay = `${Math.random() * 5}s`;
+            
+            // Determinar qual estilo de folha usar
+            const leafStyle = Math.floor(Math.random() * 3);
+            
+            // Criar SVG para a folha
+            leaf.innerHTML = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#5cdb5c" d="${getLeafPath(leafStyle)}" />
+            </svg>`;
+            
+            preloader.appendChild(leaf);
+        }
+        
+        // Adicionar texto temático
+        const cannabisText = document.createElement('div');
+        cannabisText.className = 'cannabis-text';
+        cannabisText.textContent = '420';
+        preloader.appendChild(cannabisText);
+    }
+
+    // Função para obter caminhos SVG de folhas de cannabis
+    function getLeafPath(style) {
+        // Diferentes estilos de folhas de cannabis em SVG path
+        const paths = [
+            // Folha de cannabis estilo 1
+            "M50,10 C60,25 80,20 85,30 C90,40 80,50 70,55 C80,60 85,75 80,85 C75,95 60,90 50,85 C40,90 25,95 20,85 C15,75 20,60 30,55 C20,50 10,40 15,30 C20,20 40,25 50,10 Z",
+            
+            // Folha de cannabis estilo 2
+            "M50,5 C65,20 75,15 85,30 C95,45 85,60 70,65 C80,75 80,90 65,95 C50,100 45,85 50,75 C55,85 50,100 35,95 C20,90 20,75 30,65 C15,60 5,45 15,30 C25,15 35,20 50,5 Z",
+            
+            // Folha de cannabis estilo 3
+            "M50,5 C60,30 80,25 90,40 C100,55 85,65 70,70 C85,80 85,95 70,98 C55,100 50,85 50,75 C50,85 45,100 30,98 C15,95 15,80 30,70 C15,65 0,55 10,40 C20,25 40,30 50,5 Z"
+        ];
+        
+        return paths[style];
+    }
+
+    // Configurar o preloader canábico se estivermos no tema cannabis
+    const savedTheme = localStorage.getItem('theme') || 'psychedelic';
+    if (savedTheme === 'psychedelic') {
+        createCannabisPreloaderElements();
+    }
 }); 
  
