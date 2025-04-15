@@ -1,10 +1,12 @@
 /* Estilos gerais */
 :root {
+    /* Core colors */
     --primary-color: #2c3e50;
     --secondary-color: #3498db;
     --accent-color: #e74c3c;
     --dark-color: #1a252f;
     --light-color: #ecf0f1;
+    
     --text-color: #333;
     --bg-color: #f9f9f9;
     --shadow: 0 5px 15px rgba(0,0,0,0.1);
@@ -20,7 +22,7 @@
     
     /* Variáveis para o tema psicodélico (cannabis/cogumelo) */
     --psychedelic-primary: #0d1e11;
-    --psychedelic-secondary: #3a1c53;
+    --psychedelic-secondary: #0d1e11;
     --psychedelic-accent: #5cdb5c;
     --psychedelic-accent2: #2ecc71;
     --psychedelic-text: #ccffcc;
@@ -664,32 +666,58 @@ a {
 header {
     background-color: var(--primary-color);
     color: white;
-    padding: 20px 0;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 25px 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    margin-bottom: 30px;
+    position: relative;
+}
+
+header .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    padding: 0 20px;
 }
 
 .logo {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-bottom: 12px;
 }
 
 .logo i {
-    font-size: 2rem;
-    margin-right: 10px;
+    font-size: 2.5rem;
+    margin-right: 15px;
     color: var(--secondary-color);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
 
 header h1 {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    letter-spacing: 1px;
 }
 
 .tagline {
-    text-align: center;
-    font-size: 1.1rem;
-    margin-top: 5px;
-    opacity: 0.8;
+    font-size: 1.2rem;
+    font-weight: 300;
+    margin: 8px 0 0;
+    opacity: 0.9;
+    max-width: 600px;
+    letter-spacing: 0.5px;
+}
+
+.theme-toggle {
+    position: absolute;
+    top: 0;
+    right: 20px;
+    z-index: 100;
 }
 
 /* Sections */
@@ -967,7 +995,7 @@ header h1 {
     height: 50px;
     transform: translate(-50%, -50%);
     background: conic-gradient(
-        #5cdb5c, #3a1c53, #2ecc71, #5cdb5c, #3a1c53, #2ecc71, #5cdb5c
+        #5cdb5c, #0d1e11, #2ecc71, #5cdb5c, #0d1e11, #2ecc71, #5cdb5c
     );
     border-radius: 50%;
     animation: 
@@ -1251,7 +1279,7 @@ header h1 {
     color: #5cdb5c;
     font-size: 18px;
     font-weight: 500;
-    background: linear-gradient(90deg, #5cdb5c, #8e44ad);
+    background: linear-gradient(90deg, #5cdb5c, #2ecc71);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -1470,7 +1498,7 @@ footer {
 .footer-logo i {
     font-size: 1.8rem;
     margin-right: 10px;
-    color: var(--secondary-color);
+    color: var(--primary-color);
 }
 
 .footer-logo h2 {
@@ -1527,25 +1555,34 @@ footer {
 /* Botão Carregar Mais e Loading */
 .load-more-container {
     text-align: center;
-    margin: 30px 0 50px;
+    margin: 40px 0;
 }
 
 #load-more-btn {
-    padding: 12px 30px;
-    font-size: 16px;
     background-color: var(--secondary-color);
-    transition: var(--transition);
+    color: white;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
 }
 
 #load-more-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
     background-color: #2980b9;
 }
 
 #load-more-btn.disabled {
     background-color: #ccc;
     cursor: not-allowed;
-    transform: none;
-} 
+    box-shadow: none;
+}
 
 @keyframes floatPreloader {
     0%, 100% {
@@ -1595,7 +1632,7 @@ footer {
 /* Efeitos psicodélicos adicionais */
 body.psychedelic-mode .carousel-container {
     overflow: visible;
-    box-shadow: 0 0 30px rgba(142, 68, 173, 0.5);
+    box-shadow: 0 0 30px rgba(46, 204, 113, 0.5);
 }
 
 body.psychedelic-mode .carousel-item.active {
@@ -1607,14 +1644,14 @@ body.psychedelic-mode .carousel-content {
     background: linear-gradient(to bottom, 
                 transparent, 
                 rgba(13, 30, 17, 0.7), 
-                rgba(58, 28, 83, 0.9));
+                rgba(13, 30, 17, 0.9));
     backdrop-filter: blur(5px);
 }
 
 body.psychedelic-mode .carousel-control {
     background-color: rgba(92, 219, 92, 0.3);
     backdrop-filter: blur(5px);
-    border: 1px solid rgba(142, 68, 173, 0.5);
+    border: 1px solid rgba(46, 204, 113, 0.5);
     box-shadow: 0 0 15px rgba(92, 219, 92, 0.3);
 }
 
@@ -1624,7 +1661,7 @@ body.psychedelic-mode .carousel-control:hover {
 }
 
 body.psychedelic-mode .indicator {
-    background-color: rgba(142, 68, 173, 0.5);
+    background-color: rgba(46, 204, 113, 0.5);
 }
 
 body.psychedelic-mode .indicator.active {
@@ -1940,7 +1977,7 @@ body.psychedelic-mode h3 {
 body.psychedelic-mode .news-card {
     background-color: rgba(26, 32, 44, 0.7);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(92, 219, 92, 0.3);
+    border: 1px solid rgba(46, 204, 113, 0.5);
     box-shadow: 0 0 15px rgba(92, 219, 92, 0.2);
     transform-style: preserve-3d;
     transition: all 0.5s ease;
@@ -1949,7 +1986,7 @@ body.psychedelic-mode .news-card {
 body.psychedelic-mode .news-card:hover {
     transform: translateY(-7px) rotateX(5deg);
     box-shadow: 0 15px 25px rgba(92, 219, 92, 0.3);
-    border-color: rgba(142, 68, 173, 0.5);
+    border-color: rgba(46, 204, 113, 0.5);
 }
 
 body.psychedelic-mode .news-content p {
@@ -2196,7 +2233,7 @@ body:not(.menu-active) .menu-toggle {
     position: absolute;
     height: 3px;
     width: 100%;
-    background: linear-gradient(90deg, #5cdb5c, #8e44ad);
+    background: linear-gradient(90deg, #5cdb5c, #2ecc71);
     border-radius: 4px;
     transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
 }
@@ -2408,9 +2445,9 @@ body:not(.menu-active) .menu-toggle {
 }
 
 .menu-link {
+    padding: 15px;
     display: flex;
     align-items: center;
-    padding: 12px 15px;
     color: rgba(204, 255, 204, 0.9);
     text-decoration: none;
     font-size: 18px;
@@ -2421,14 +2458,14 @@ body:not(.menu-active) .menu-toggle {
     z-index: 1;
     border-radius: 12px;
     backdrop-filter: blur(5px);
-    background: rgba(58, 28, 83, 0.1);
+    background: rgba(13, 30, 17, 0.1);
     transform-style: preserve-3d;
 }
 
 .menu-link:hover {
     color: #fff;
     transform: translateX(5px);
-    background: rgba(58, 28, 83, 0.2);
+    background: rgba(13, 30, 17, 0.2);
 }
 
 .menu-link i {
@@ -2486,7 +2523,7 @@ body:not(.menu-active) .menu-toggle {
     transform: translateY(-50%);
     width: 4px;
     height: 70%;
-    background: linear-gradient(to bottom, #5cdb5c, #8e44ad);
+    background: linear-gradient(to bottom, #5cdb5c, #2ecc71);
     border-radius: 0 4px 4px 0;
 }
 
@@ -2518,7 +2555,7 @@ body:not(.menu-active) .menu-toggle {
 
 .social-icon:hover {
     transform: translateY(-5px) scale(1.1);
-    background: rgba(58, 28, 83, 0.6);
+    background: rgba(13, 30, 17, 0.6);
     color: var(--psychedelic-accent2);
     box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
 }
@@ -2708,12 +2745,12 @@ body.loaded.menu-active #main-content {
 
 /* Melhorias extras para o menu alucinado */
 body.psychedelic-mode .menu-toggle .hamburger span {
-    background: linear-gradient(90deg, #5cdb5c 0%, #8e44ad 100%);
+    background: linear-gradient(90deg, #5cdb5c 0%, #2ecc71 100%);
     box-shadow: 0 0 10px rgba(92, 219, 92, 0.8);
 }
 
 body.psychedelic-mode .menu-toggle:hover .hamburger span {
-    background: linear-gradient(90deg, #8e44ad 0%, #5cdb5c 100%);
+    background: linear-gradient(90deg, #2ecc71 0%, #5cdb5c 100%);
 }
 
 body.psychedelic-mode .side-menu {
@@ -2804,7 +2841,7 @@ header .container {
     font-family: 'Roboto', sans-serif;
     line-height: 1;
     color: transparent;
-    background: linear-gradient(135deg, #5cdb5c, #8e44ad, #e74c3c, #3498db);
+    background: linear-gradient(135deg, #5cdb5c, #2ecc71, #e74c3c, #3498db);
     background-size: 400% 400%;
     -webkit-background-clip: text;
     background-clip: text;
@@ -3270,4 +3307,288 @@ header .container {
     .glow-effect {
         width: 250px;
     }
+}
+
+/* Estilos para filtro de idioma */
+.filter-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.language-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+}
+
+.dark-mode .language-filter {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.psychedelic-mode .language-filter {
+    background: linear-gradient(135deg, rgba(13, 30, 17, 0.7), rgba(22, 74, 35, 0.7));
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 255, 100, 0.3);
+    box-shadow: 
+        0 0 20px rgba(0, 255, 128, 0.4),
+        inset 0 0 15px rgba(0, 255, 100, 0.2);
+    position: relative;
+    overflow: hidden;
+    animation: filter-container-pulse 5s infinite alternate;
+    border-radius: 12px;
+    padding: 12px 20px;
+}
+
+@keyframes filter-container-pulse {
+    0% {
+        box-shadow: 
+            0 0 20px rgba(0, 255, 128, 0.5),
+            inset 0 0 15px rgba(0, 255, 100, 0.4);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 
+            0 0 30px rgba(0, 255, 128, 0.6),
+            inset 0 0 25px rgba(0, 255, 100, 0.5);
+        transform: scale(1.01);
+    }
+    100% {
+        box-shadow: 
+            0 0 20px rgba(0, 255, 128, 0.5),
+            inset 0 0 15px rgba(0, 255, 100, 0.4);
+        transform: scale(1);
+    }
+}
+
+.psychedelic-mode .language-filter::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 150%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        rgba(0, 255, 128, 0) 0%, 
+        rgba(0, 255, 128, 0.4) 50%, 
+        rgba(0, 255, 128, 0) 100%);
+    transform: skewX(-25deg);
+    animation: psychedelic-filter-shine 6s infinite;
+    z-index: 2;
+}
+
+/* Padrão de fractais para o fundo */
+.psychedelic-mode .language-filter::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        repeating-conic-gradient(
+            rgba(0, 255, 100, 0.1) 0%, 
+            rgba(100, 255, 100, 0.1) 4%, 
+            rgba(0, 200, 50, 0.1) 8%, 
+            rgba(50, 255, 50, 0.1) 12%, 
+            rgba(0, 255, 100, 0.1) 16%
+        );
+    background-size: 30% 30%;
+    border-radius: inherit;
+    z-index: 1;
+    animation: cannabis-pattern 20s linear infinite;
+    opacity: 0.7;
+    mix-blend-mode: overlay;
+}
+
+.psychedelic-mode .language-filter span {
+    color: #00dd77;
+    text-shadow: 
+        0 0 5px rgba(0, 255, 128, 0.7),
+        0 0 10px rgba(0, 200, 100, 0.5);
+    font-weight: 600;
+    position: relative;
+    animation: green-text-flow 8s infinite;
+    padding-right: 25px;
+    letter-spacing: 0.5px;
+}
+
+@keyframes green-text-flow {
+    0% { color: #00dd77; text-shadow: 0 0 5px rgba(0, 255, 128, 0.7), 0 0 10px rgba(0, 200, 100, 0.5); }
+    25% { color: #33cc66; text-shadow: 0 0 5px rgba(51, 204, 102, 0.7), 0 0 10px rgba(0, 200, 100, 0.5); }
+    50% { color: #00aa55; text-shadow: 0 0 5px rgba(0, 170, 85, 0.7), 0 0 10px rgba(0, 200, 100, 0.5); }
+    75% { color: #33cc66; text-shadow: 0 0 5px rgba(51, 204, 102, 0.7), 0 0 10px rgba(0, 200, 100, 0.5); }
+    100% { color: #00dd77; text-shadow: 0 0 5px rgba(0, 255, 128, 0.7), 0 0 10px rgba(0, 200, 100, 0.5); }
+}
+
+.psychedelic-mode .language-filter span::after {
+    display: none;
+}
+
+/* Scrollbar alucinógeno */
+.psychedelic-mode::-webkit-scrollbar {
+    width: 12px;
+    background: linear-gradient(to bottom, #0d1e11, #164a23);
+}
+
+.psychedelic-mode::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #00aa55, #33cc66, #00dd77);
+    border-radius: 6px;
+    border: 2px solid #0d1e11;
+    box-shadow: 0 0 10px rgba(0, 255, 128, 0.6);
+}
+
+.psychedelic-mode::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, #33cc66, #00dd77, #33cc66);
+}
+
+.psychedelic-mode::-webkit-scrollbar-track {
+    background: rgba(13, 30, 17, 0.8);
+    border-radius: 6px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Efeito de rastro no scrollbar */
+.psychedelic-mode::-webkit-scrollbar-thumb::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 255, 128, 0.3);
+    filter: blur(5px);
+    animation: scrollbar-glow 2s infinite alternate;
+}
+
+@keyframes scrollbar-glow {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Fazer o preloader ter scroll fixo */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 9999;
+}
+
+.psychedelic-mode .filter-btn {
+    background: linear-gradient(135deg, #0d1e11, #164a23);
+    color: #ccffcc;
+    border: 1px solid rgba(0, 255, 100, 0.3);
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    margin: 0 5px;
+    text-shadow: 0 0 5px rgba(0, 255, 100, 0.5);
+    box-shadow: 0 0 10px rgba(0, 200, 100, 0.2);
+    z-index: 5;
+}
+
+.psychedelic-mode .filter-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 255, 100, 0.3);
+    background: linear-gradient(135deg, #164a23, #1a5c2a);
+}
+
+.psychedelic-mode .filter-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        rgba(0, 255, 100, 0) 0%,
+        rgba(0, 255, 100, 0.2) 50%,
+        rgba(0, 255, 100, 0) 100%);
+    transform: skewX(-20deg);
+    transition: 0.5s;
+    z-index: 1;
+}
+
+.psychedelic-mode .filter-btn:hover::before {
+    left: 100%;
+    transition: 0.5s;
+}
+
+.psychedelic-mode .filter-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        repeating-linear-gradient(
+            45deg,
+            rgba(0, 255, 100, 0.05),
+            rgba(0, 255, 100, 0.05) 5px,
+            transparent 5px,
+            transparent 10px
+        );
+    opacity: 0.3;
+    z-index: -1;
+    border-radius: inherit;
+}
+
+.psychedelic-mode .filter-btn.active {
+    background: linear-gradient(135deg, #00aa55, #33cc66, #00dd77);
+    background-size: 400% 400%;
+    color: #ffffff;
+    box-shadow: 
+        0 0 15px rgba(0, 255, 128, 0.7),
+        0 0 30px rgba(0, 200, 100, 0.5),
+        inset 0 0 15px rgba(0, 255, 100, 0.4);
+    transform: scale(1.12);
+    border: 1px solid rgba(0, 255, 100, 0.5);
+    animation: green-pulse 2s infinite alternate, green-bg-move 8s infinite linear;
+    text-shadow: 0 0 10px rgba(0, 255, 128, 0.8);
+    z-index: 5;
+    font-weight: bold;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.5px;
+}
+
+/* Adicionar folhas de cannabis ao botão */
+.psychedelic-mode .filter-btn.active span {
+    position: relative;
+    display: inline-block;
+}
+
+.psychedelic-mode .filter-btn.active span::before {
+    content: '🍁';
+    position: absolute;
+    left: -18px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-15deg);
+    font-size: 10px;
+    opacity: 0.7;
+    animation: leaf-float 2s ease-in-out infinite alternate;
+    text-shadow: none;
+}
+
+.psychedelic-mode .filter-btn.active span::after {
+    content: '🍁';
+    position: absolute;
+    right: -18px;
+    top: 50%;
+    transform: translateY(-50%) rotate(15deg);
+    font-size: 10px;
+    opacity: 0.7;
+    animation: leaf-float 2s ease-in-out infinite alternate-reverse;
+    text-shadow: none;
+}
+
+@keyframes leaf-float {
+    0% { transform: translateY(-50%) rotate(-15deg) scale(1); }
+    100% { transform: translateY(-60%) rotate(15deg) scale(1.2); }
 }

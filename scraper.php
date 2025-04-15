@@ -112,6 +112,124 @@ function getAllNews() {
             'image_selector' => 'img',
             'description_selector' => 'p',
             'link_selector' => 'a'
+        ],
+        [
+            'name' => 'TechTudo',
+            'url' => 'https://www.techtudo.com.br/tudo-sobre/seguranca-digital/',
+            'article_selector' => 'article, .feed-post-body',
+            'title_selector' => 'h2, h3',
+            'image_selector' => 'img',
+            'description_selector' => 'p',
+            'link_selector' => 'a'
+        ],
+        [
+            'name' => 'CertiSign Blog',
+            'url' => 'https://blog.certisign.com.br/category/seguranca-da-informacao/',
+            'article_selector' => 'article, .post',
+            'title_selector' => 'h2, h3, .entry-title',
+            'image_selector' => 'img',
+            'description_selector' => 'p, .entry-summary',
+            'link_selector' => 'a'
+        ],
+        [
+            'name' => 'TI Inside',
+            'url' => 'https://tiinside.com.br/categoria/seguranca/',
+            'article_selector' => 'article, .post',
+            'title_selector' => 'h2, h3',
+            'image_selector' => 'img',
+            'description_selector' => 'p',
+            'link_selector' => 'a'
+        ],
+        [
+            'name' => 'CanalTech Segurança',
+            'url' => 'https://canaltech.com.br/seguranca/',
+            'article_selector' => 'article, .ct-article',
+            'title_selector' => 'h2, h3',
+            'image_selector' => 'img',
+            'description_selector' => 'p',
+            'link_selector' => 'a'
+        ],
+        [
+            'name' => 'ComputerWorld Brasil',
+            'url' => 'https://computerworld.com.br/categoria/seguranca/',
+            'article_selector' => 'article, .post',
+            'title_selector' => 'h2, h3',
+            'image_selector' => 'img',
+            'description_selector' => 'p',
+            'link_selector' => 'a'
+        ],
+        [
+            'name' => 'Portal Defesa',
+            'url' => 'https://www.defesa.tv.br/category/ciberseguranca/',
+            'article_selector' => 'article, .post',
+            'title_selector' => 'h2, h3',
+            'image_selector' => 'img',
+            'description_selector' => 'p',
+            'link_selector' => 'a'
+        ],
+        [
+            'name' => 'Convergência Digital',
+            'url' => 'https://www.convergenciadigital.com.br/Seguranca',
+            'article_selector' => 'article, .view-content',
+            'title_selector' => 'h2, h3',
+            'image_selector' => 'img',
+            'description_selector' => 'p',
+            'link_selector' => 'a'
+        ],
+        // Sites internacionais
+        [
+            'name' => 'The Hacker News',
+            'url' => 'https://thehackernews.com/',
+            'article_selector' => 'article, .body-post',
+            'title_selector' => 'h2, h3',
+            'image_selector' => 'img',
+            'description_selector' => 'p, .home-desc',
+            'link_selector' => 'a'
+        ],
+        [
+            'name' => 'Bleeping Computer',
+            'url' => 'https://www.bleepingcomputer.com/',
+            'article_selector' => 'article, .cat_bpost',
+            'title_selector' => 'h2, h3',
+            'image_selector' => 'img',
+            'description_selector' => 'p',
+            'link_selector' => 'a'
+        ],
+        [
+            'name' => 'Krebs on Security',
+            'url' => 'https://krebsonsecurity.com/',
+            'article_selector' => 'article, .post',
+            'title_selector' => 'h2, h3, .entry-title',
+            'image_selector' => 'img',
+            'description_selector' => 'p, .entry-content',
+            'link_selector' => 'a'
+        ],
+        [
+            'name' => 'Dark Reading',
+            'url' => 'https://www.darkreading.com/',
+            'article_selector' => 'article, .river-well',
+            'title_selector' => 'h2, h3',
+            'image_selector' => 'img',
+            'description_selector' => 'p',
+            'link_selector' => 'a'
+        ],
+        [
+            'name' => 'SecurityWeek',
+            'url' => 'https://www.securityweek.com/',
+            'article_selector' => 'article, .post',
+            'title_selector' => 'h2, h3',
+            'image_selector' => 'img',
+            'description_selector' => 'p',
+            'link_selector' => 'a'
+        ],
+        [
+            'name' => 'Threatpost',
+            'url' => 'https://threatpost.com/',
+            'article_selector' => 'article, .c-card',
+            'title_selector' => 'h2, h3',
+            'image_selector' => 'img',
+            'description_selector' => 'p',
+            'link_selector' => 'a'
         ]
     ];
 
@@ -127,9 +245,18 @@ function getAllNews() {
                 $item['original_title'] = $item['title'];
             }
             
+            // Identifica se é site internacional (inglês) baseado no domínio
+            $isEnglish = !preg_match('/(\.br|\.com\.br)/i', $site['url']);
+            $item['language'] = $isEnglish ? 'en' : 'pt';
+            
             // Se o título for muito curto ou genérico, adiciona o nome da fonte para diferenciar
             if (strlen($item['title']) < 25) {
                 $item['title'] = $item['title'] . ' - ' . $item['source'];
+            }
+            
+            // Para sites em inglês, adicionar indicação no título se não estiver em português
+            if ($isEnglish) {
+                $item['title'] = '[EN] ' . $item['title'];
             }
         }
         
@@ -565,12 +692,21 @@ function scrapeWebsite($site) {
                 $descriptionText = substr($descriptionText, 0, 147) . '...';
             }
             
+            // Verifica se é site internacional (em inglês) baseado no domínio
+            $isEnglish = !preg_match('/(\.br|\.com\.br)/i', $site['url']);
+            
+            // Para sites em inglês, adiciona indicador no início da descrição
+            if ($isEnglish) {
+                $descriptionText = "[Conteúdo em inglês] " . $descriptionText;
+            }
+            
             $news[] = [
                 'title' => $titleText,
                 'image' => $imageUrl,
                 'description' => $descriptionText,
                 'url' => $linkUrl,
-                'source' => $site['name']
+                'source' => $site['name'],
+                'language' => $isEnglish ? 'en' : 'pt'
             ];
         }
     } catch (Exception $e) {
@@ -633,64 +769,48 @@ function getWebsiteContent($url) {
  * Função para carregar mais notícias (usado pelo AJAX para scroll infinito)
  */
 if (isset($_GET['load_more'])) {
-    // Suprime todos os erros e avisos
-    error_reporting(0);
-    ini_set('display_errors', 0);
-    
-    // Garante que a saída seja JSON
+    // Set headers for JSON response
     header('Content-Type: application/json');
     
-    ob_start(); // Inicia o buffer de saída para capturar qualquer aviso que escape
+    // Get current page and items per page
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $itemsPerPage = isset($_GET['items']) ? (int)$_GET['items'] : 12;
     
-    try {
-        $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
-        $perPage = 6;
-        
-        $allNews = getAllNews();
-        $offset = $page * $perPage;
-        
-        // Garantir que offset não é maior que o número de notícias
-        if ($offset >= count($allNews)) {
-            echo json_encode([
-                'news' => [],
-                'hasMore' => false,
-                'message' => 'Não há mais notícias para carregar'
-            ]);
-            exit;
+    // Obter filtro de idioma
+    $languageFilter = isset($_GET['lang']) ? $_GET['lang'] : 'all';
+    
+    // Get all news
+    $allNews = getAllNews();
+    
+    // Filtrar notícias por idioma se necessário
+    if ($languageFilter !== 'all') {
+        $filteredNews = [];
+        foreach ($allNews as $item) {
+            if (isset($item['language']) && $item['language'] === $languageFilter) {
+                $filteredNews[] = $item;
+            }
         }
-        
-        $moreNews = array_slice($allNews, $offset, $perPage);
-        
-        // Garantir que a resposta é válida mesmo em caso de erros
-        if (empty($moreNews)) {
-            echo json_encode([
-                'news' => [],
-                'hasMore' => false,
-                'message' => 'Não há mais notícias para carregar'
-            ]);
-            exit;
-        }
-        
-        // Verificar se há mais notícias após este carregamento
-        $hasMore = (count($allNews) > ($offset + $perPage));
-        
-        echo json_encode([
-            'news' => $moreNews,
-            'hasMore' => $hasMore,
-            'message' => 'Carregadas ' . count($moreNews) . ' notícias com sucesso'
-        ]);
-    } catch (Exception $e) {
-        // Em caso de erro, retorna mensagem
-        ob_end_clean(); // Limpa qualquer saída gerada pelo erro
-        echo json_encode([
-            'news' => [],
-            'hasMore' => false,
-            'error' => true,
-            'message' => 'Erro ao carregar mais notícias: ' . $e->getMessage()
-        ]);
+        $allNews = $filteredNews;
     }
     
-    // Garante que nenhum conteúdo após o JSON é enviado
-    ob_end_flush();
+    // Calculate offset based on page
+    $offset = ($page - 1) * $itemsPerPage;
+    
+    // Get news slice for current page
+    $newsSlice = array_slice($allNews, $offset, $itemsPerPage);
+    
+    // Check if there are more news available
+    $hasMore = (count($allNews) > ($offset + $itemsPerPage));
+    
+    // Return JSON response
+    echo json_encode([
+        'news' => $newsSlice,
+        'hasMore' => $hasMore,
+        'total' => count($allNews),
+        'page' => $page,
+        'filter' => $languageFilter,
+        'message' => count($newsSlice) > 0 ? 'Notícias carregadas com sucesso' : 'Não há mais notícias para carregar'
+    ]);
+    
     exit;
 }

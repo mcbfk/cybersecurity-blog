@@ -103,6 +103,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     cannabisIcon.style.display = 'flex';
                     createPsychedelicElements();
                     setupPsychedelicEffects();
+                    
+                    // Aplicar efeitos psicodélicos aos botões de filtro
+                    setupPsychedelicFilterButtons();
                     break;
                 case 'light':
                     sunIcon.style.display = 'flex';
@@ -427,7 +430,103 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Função para carregar mais notícias
+    // Variáveis para filtragem de idioma
+    let currentLanguageFilter = 'all';
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    
+    // Configura os ouvintes de eventos para os botões de filtro de idioma
+    if (filterButtons.length > 0) {
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Remove classe 'active' de todos os botões
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // Adiciona classe 'active' ao botão clicado
+                this.classList.add('active');
+                
+                // Adiciona efeito de clique psicodélico se estiver no modo alucinógeno
+                if (document.body.classList.contains('psychedelic-mode')) {
+                    createClickEffect(e, this);
+                }
+                
+                // Atualiza o filtro atual
+                currentLanguageFilter = this.getAttribute('data-filter');
+                
+                // Limpa o grid e recarrega as notícias
+                if (newsGrid) {
+                    newsGrid.innerHTML = '';
+                    displayedTitles.clear();
+                    page = 1;
+                    hasMore = true;
+                    loadMoreNews();
+                }
+            });
+            
+            // Adicionar efeito de rastreamento de mouse para o modo psicodélico
+            button.addEventListener('mousemove', function(e) {
+                // Obtem a posição relativa do mouse dentro do botão
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Atualiza as variáveis CSS customizadas
+                this.style.setProperty('--x', x);
+                this.style.setProperty('--y', y);
+            });
+        });
+    }
+
+    // Função para criar efeito visual no clique dos botões no modo alucinógeno
+    function createClickEffect(e, button) {
+        const rect = button.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Criar elemento de efeito
+        const effect = document.createElement('div');
+        effect.className = 'psychedelic-click-effect';
+        effect.style.left = x + 'px';
+        effect.style.top = y + 'px';
+        
+        // Adicionar o efeito ao botão
+        button.appendChild(effect);
+        
+        // Criar folhas de cannabis que voam para fora
+        for (let i = 0; i < 5; i++) {
+            const leaf = document.createElement('div');
+            leaf.className = 'cannabis-leaf click-leaf';
+            
+            // Ângulo aleatório para a trajetória
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 30 + Math.random() * 60;
+            const size = 10 + Math.random() * 15;
+            
+            // Configurar estilo
+            leaf.style.width = size + 'px';
+            leaf.style.height = size + 'px';
+            leaf.style.left = x + 'px';
+            leaf.style.top = y + 'px';
+            leaf.style.setProperty('--angle', angle + 'rad');
+            leaf.style.setProperty('--distance', distance + 'px');
+            
+            document.body.appendChild(leaf);
+            
+            // Remover a folha após a animação
+            setTimeout(() => {
+                if (leaf.parentNode) {
+                    leaf.parentNode.removeChild(leaf);
+                }
+            }, 1000);
+        }
+        
+        // Remover o efeito após a animação
+        setTimeout(() => {
+            if (effect.parentNode) {
+                effect.parentNode.removeChild(effect);
+            }
+        }, 700);
+    }
+
+    // Atualiza a função loadMoreNews para incluir o filtro de idioma
     async function loadMoreNews() {
         if (isLoading || !hasMore) return;
         
@@ -436,7 +535,8 @@ document.addEventListener('DOMContentLoaded', function() {
         updateButtonState();
         
         try {
-            const response = await fetch(`scraper.php?load_more=1&page=${page}`);
+            // Inclui o parâmetro de filtro de idioma na URL
+            const response = await fetch(`scraper.php?load_more=1&page=${page}&items=16&lang=${currentLanguageFilter}`);
             if (!response.ok) {
                 throw new Error('Erro na resposta do servidor: ' + response.status);
             }
@@ -528,11 +628,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 return; // Pula esta notícia se for duplicada
             }
             
+            // Verifica se a notícia atende ao filtro de idioma atual
+            if (currentLanguageFilter !== 'all' && item.language !== currentLanguageFilter) {
+                console.log(`Notícia em ${item.language} ignorada devido ao filtro atual: ${currentLanguageFilter}`);
+                return; // Pula esta notícia se não atender ao filtro
+            }
+            
             // Adiciona ao cache de títulos exibidos
             displayedTitles.add(normalizedTitle);
             
             const article = document.createElement('article');
-            article.className = 'news-card';
+            article.className = `news-card lang-${item.language || 'pt'}`;
             
             // Verifica se a imagem existe antes de usar
             let imageUrl = 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
@@ -544,6 +650,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="news-image">
                     <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(item.title)}" onerror="this.src='https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';">
                     <span class="badge">${escapeHtml(item.source)}</span>
+                    ${item.language === 'en' ? '<span class="language-badge">EN</span>' : ''}
                 </div>
                 <div class="news-content">
                     <h3>${escapeHtml(item.title)}</h3>
@@ -895,5 +1002,34 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Inicializar o menu
     setupPsychedelicMenu();
+
+    // Função para aplicar efeitos psicodélicos aos botões de filtro
+    function setupPsychedelicFilterButtons() {
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        filterButtons.forEach(button => {
+            // Limpar quaisquer efeitos anteriores
+            button.style.transform = '';
+            
+            // Adicionar efeitos aleatórios periódicos
+            const intervalId = setInterval(() => {
+                if (!document.body.classList.contains('psychedelic-mode')) {
+                    clearInterval(intervalId);
+                    return;
+                }
+                
+                const randomRotate = (Math.random() * 2 - 1);
+                const randomScale = 1 + (Math.random() * 0.05);
+                
+                button.style.transform = `scale(${randomScale}) rotate(${randomRotate}deg)`;
+                
+                setTimeout(() => {
+                    if (document.body.classList.contains('psychedelic-mode')) {
+                        button.style.transform = '';
+                    }
+                }, 200);
+            }, 3000 + Math.random() * 2000);
+        });
+    }
 });
  

@@ -5,7 +5,7 @@ include 'scraper.php';
 // Obtem as notícias
 $allNews = getAllNews();
 $featuredNews = array_slice($allNews, 0, 5); // Primeiras 5 notícias para o carousel
-$gridNews = array_slice($allNews, 0, 12); // Primeiras 12 notícias para o grid inicial
+$gridNews = array_slice($allNews, 0, 24); // Primeiras 24 notícias para o grid inicial
 ?>
 
 <!DOCTYPE html>
@@ -183,6 +183,16 @@ $gridNews = array_slice($allNews, 0, 12); // Primeiras 12 notícias para o grid 
                 <h2 class="section-title">Últimas Notícias</h2>
                 <div class="section-line"></div>
             </div>
+
+            <!-- Filtros de idioma -->
+            <section class="filter-container">
+                <div class="language-filter">
+                    <span>Filtrar por idioma:</span>
+                    <button class="filter-btn active" data-filter="all">Todos</button>
+                    <button class="filter-btn" data-filter="pt">Português</button>
+                    <button class="filter-btn" data-filter="en">Inglês</button>
+                </div>
+            </section>
 
             <!-- Grid de notícias com scroll infinito -->
             <section class="news-grid" id="news-grid">
