@@ -48,6 +48,17 @@
     perspective: 1000px;
     overscroll-behavior: none;
     touch-action: none;
+    user-select: none;
+}
+
+/* Impedir scroll enquanto o preloader está ativo */
+body:not(.loaded) {
+    height: 100vh;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
+    position: fixed;
+    width: 100%;
 }
 
 /* Background com efeito canábico */
