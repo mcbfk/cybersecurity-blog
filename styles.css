@@ -724,13 +724,6 @@ header h1 {
     letter-spacing: 0.5px;
 }
 
-.theme-toggle {
-    position: absolute;
-    top: 0;
-    right: 20px;
-    z-index: 100;
-}
-
 /* Sections */
 .section-header {
     display: flex;
@@ -1680,11 +1673,6 @@ body.psychedelic-mode .indicator.active {
     box-shadow: 0 0 10px var(--psychedelic-accent);
 }
 
-/* Efeito de distorção ao rolar a página no modo psicodélico */
-body.psychedelic-mode {
-    perspective: 1000px;
-}
-
 body.psychedelic-mode .container {
     transform-style: preserve-3d;
     transition: transform 0.2s ease-out;
@@ -1833,12 +1821,7 @@ body.psychedelic-mode .news-card:hover .news-image img {
 
 /* Botão de alternância de tema */
 .theme-toggle {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 100;
-    width: 40px;
-    height: 40px;
+    display: none;
 }
 
 header .container {
@@ -1863,66 +1846,11 @@ header .container {
 }
 
 #theme-switch {
-    background: none;
-    border: none;
-    color: var(--light-color);
-    font-size: 1.5rem;
-    cursor: pointer;
-    transition: var(--transition);
-    padding: 0;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.2);
-    position: relative;
-    overflow: hidden;
+    display: none;
 }
 
 #theme-switch i {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-#theme-switch i.fa-cannabis,
-#theme-switch i.fa-moon,
-#theme-switch i.fa-sun {
-    text-align: center;
-    margin: 0;
-    padding: 0;
-}
-
-#theme-switch .fa-cannabis {
-    color: var(--psychedelic-accent);
-    filter: drop-shadow(0 0 3px rgba(92, 219, 92, 0.8));
-}
-
-#theme-switch .fa-sun {
-    color: #f39c12;
-    filter: drop-shadow(0 0 3px rgba(243, 156, 18, 0.6));
-}
-
-#theme-switch:hover {
-    transform: rotate(12deg) scale(1.1);
-    background-color: rgba(0, 0, 0, 0.3);
-}
-
-body.psychedelic-mode #theme-switch .fa-cannabis {
-    animation: cannabis-rotate 5s linear infinite;
-}
-
-@keyframes cannabis-rotate {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    display: none;
 }
 
 /* Tema psicodélico (cannabis/cogumelo) */
@@ -1931,6 +1859,7 @@ body.psychedelic-mode {
     color: var(--psychedelic-text);
     position: relative;
     overflow-x: hidden;
+    perspective: none;
 }
 
 /* Fundo psicodélico animado */
@@ -3602,4 +3531,51 @@ header .container {
 @keyframes leaf-float {
     0% { transform: translateY(-50%) rotate(-15deg) scale(1); }
     100% { transform: translateY(-60%) rotate(15deg) scale(1.2); }
+}
+
+/* Botão Voltar ao Topo */
+.back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--psychedelic-accent), var(--psychedelic-accent2));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--dark-primary);
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 0 20px rgba(92, 219, 92, 0.5);
+    z-index: 1000;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.back-to-top:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 0 30px rgba(92, 219, 92, 0.8);
+}
+
+.back-to-top i {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
 }

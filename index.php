@@ -18,7 +18,12 @@ $gridNews = array_slice($allNews, 0, 24); // Primeiras 24 notícias para o grid 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="psychedelic-mode">
+    <!-- Botão Voltar ao Topo -->
+    <div class="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
     <!-- Menu Lateral Alucinado -->
     <div class="psychedelic-menu-container">
         <div class="menu-toggle">
@@ -145,12 +150,6 @@ $gridNews = array_slice($allNews, 0, 24); // Primeiras 24 notícias para o grid 
                     <h1>CyberNews</h1>
                 </div>
                 <p class="tagline">Notícias de segurança cibernética em um só lugar</p>
-                <div class="theme-toggle">
-                    <button id="theme-switch" title="Alternar tema">
-                        <i class="fas fa-moon"></i>
-                        <i class="fas fa-cannabis"></i>
-                    </button>
-                </div>
             </div>
         </header>
 
