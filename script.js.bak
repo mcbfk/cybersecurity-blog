@@ -719,32 +719,32 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Timeout ou erro de rede');
                 }
                 
-            if (!response.ok) {
-                throw new Error('Erro na resposta do servidor: ' + response.status);
-            }
-            
-            // Verificar se a resposta é JSON válido
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new Error('Resposta inválida do servidor (não é JSON)');
-            }
-            
-            let data;
-            try {
-                data = await response.json();
-            } catch (parseError) {
-                console.error('Erro ao analisar JSON:', parseError);
+                if (!response.ok) {
+                    throw new Error('Erro na resposta do servidor: ' + response.status);
+                }
+                
+                // Verificar se a resposta é JSON válido
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Resposta inválida do servidor (não é JSON)');
+                }
+                
+                let data;
+                try {
+                    data = await response.json();
+                } catch (parseError) {
+                    console.error('Erro ao analisar JSON:', parseError);
                     // Usar notícias sintéticas se o parse falhar
                     const syntheticNews = getMoreSources();
                     newsToAdd = [...newsToAdd, ...syntheticNews];
-                throw new Error('A resposta do servidor não é um JSON válido');
-            }
-            
-            if (data.error) {
-                throw new Error(data.message || 'Erro desconhecido');
-            }
-            
-            if (data.news && data.news.length > 0) {
+                    throw new Error('A resposta do servidor não é um JSON válido');
+                }
+                
+                if (data.error) {
+                    throw new Error(data.message || 'Erro desconhecido');
+                }
+                
+                if (data.news && data.news.length > 0) {
                     // Adiciona as notícias recebidas
                     newsToAdd = [...newsToAdd, ...data.news];
                     
@@ -764,16 +764,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const addedCount = appendNews(newsToAdd);
             
             // Aumenta a página independentemente da origem das notícias
-                page++;
+            page++;
             hasMore = true; // Sempre true para continuar infinitamente
             
             // Se adicionamos poucas notícias, continua carregando mais imediatamente
             if (addedCount < 5) {
                 console.log(`Poucas notícias adicionadas (${addedCount}), carregando mais para completar...`);
-                    setTimeout(() => {
-                        loadMoreNews();
-                    }, 500);
-                }
+                setTimeout(() => {
+                    loadMoreNews();
+                }, 500);
+            }
             
         } catch (error) {
             console.error('Erro ao carregar mais notícias:', error);
@@ -1214,58 +1214,39 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!newsGrid || !Array.isArray(news) || news.length === 0) return 0;
         
         let addedCount = 0;
-        // Melhoria da detecção de duplicatas: histórico de URLs e descrições
-        const urlHistory = new Set();
         
         news.forEach(item => {
             if (!item || !item.title) return; // Verifica se o item é válido
             
             // Normaliza o título e verifica se já foi exibido
             const normalizedTitle = normalizeTitle(item.title);
-            
-            // Verifica URL para evitar duplicatas (muitas vezes o mesmo conteúdo tem títulos diferentes)
-            if (item.url && urlHistory.has(item.url)) {
-                console.log('URL duplicada ignorada:', item.url);
-                return;
-            }
-            
-            // Verifica título duplicado com limiar de similaridade mais alto (90%)
-            let isDuplicate = false;
-            displayedTitles.forEach(existingTitle => {
-                // Aumentado para 0.9 (90% similar) para ser mais restritivo
-                const similarity = getSimilarity(normalizedTitle, existingTitle);
-                if (similarity > 0.9) {
-                    isDuplicate = true;
-                    return;
-                }
-            });
-            
-            if (isDuplicate) {
-                console.log('Título similar ignorado:', item.title);
-                return;
+            if (displayedTitles.has(normalizedTitle)) {
+                console.log('Notícia duplicada ignorada:', item.title);
+                return; // Pula esta notícia se for duplicada
             }
             
             // Verifica se a notícia atende ao filtro de idioma atual
-            if (currentLanguageFilter !== 'all' && item.language !== currentLanguageFilter) {
+            // Relaxa a verificação de filtro para permitir mais conteúdo
+            if (currentLanguageFilter !== 'all' && item.language !== currentLanguageFilter && Math.random() > 0.3) {
                 console.log(`Notícia em ${item.language} ignorada devido ao filtro atual: ${currentLanguageFilter}`);
-                return; // Pula esta notícia se não atender ao filtro
+                return; // Pula esta notícia com 70% de chance se não atender ao filtro
             }
             
-            // Adiciona ao cache de títulos e URLs exibidos
+            // Adiciona ao cache de títulos exibidos
             displayedTitles.add(normalizedTitle);
-            if (item.url) urlHistory.add(item.url);
             
             const article = document.createElement('article');
             article.className = `news-card lang-${item.language || 'pt'}`;
             
-            // Se a notícia não tiver imagem, usa a imagem genérica específica de cybersecurity
-            // em vez da padrão
-            let imageUrl = item.image || '';
+            // Verifica se a imagem existe antes de usar
+            let imageUrl = 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+            if (item.image) {
+                imageUrl = item.image;
+            }
             
-            // Remove o uso de fallback estático para cada item e só usa a imagem real
             article.innerHTML = `
                 <div class="news-image">
-                    <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(item.title)}">
+                    <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(item.title)}" onerror="this.src='https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';">
                     <span class="badge">${escapeHtml(item.source)}</span>
                     ${item.language === 'en' ? '<span class="language-badge">EN</span>' : ''}
                 </div>
@@ -1282,66 +1263,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         return addedCount;
     }
-
-    // Função para calcular similaridade entre dois strings (algoritmo de Levenshtein)
-    function getSimilarity(str1, str2) {
-        if (str1 === str2) return 1.0;
-        
-        const lenStr1 = str1.length;
-        const lenStr2 = str2.length;
-        
-        // Se a diferença de tamanho for muito grande, já descarta
-        if (Math.abs(lenStr1 - lenStr2) > 10) return 0;
-        
-        const matrix = [];
-        
-        // Inicializa a matriz
-        for (let i = 0; i <= lenStr1; i++) {
-            matrix[i] = [i];
-        }
-        
-        for (let j = 0; j <= lenStr2; j++) {
-            matrix[0][j] = j;
-        }
-        
-        // Preenche a matriz de edição
-        for (let i = 1; i <= lenStr1; i++) {
-            for (let j = 1; j <= lenStr2; j++) {
-                if (str1.charAt(i - 1) === str2.charAt(j - 1)) {
-                    matrix[i][j] = matrix[i - 1][j - 1];
-                } else {
-                    matrix[i][j] = Math.min(
-                        matrix[i - 1][j - 1] + 1, // substituição
-                        Math.min(
-                            matrix[i][j - 1] + 1, // inserção
-                            matrix[i - 1][j] + 1  // deleção
-                        )
-                    );
-                }
-            }
-        }
-        
-        // Normaliza o resultado para um valor entre 0 e 1
-        const distancia = matrix[lenStr1][lenStr2];
-        const maxLen = Math.max(lenStr1, lenStr2);
-        
-        // Retorna a similaridade (1 - distância normalizada)
-        return 1 - (distancia / maxLen);
-    }
-
-    // Função para limpar o cache de notícias duplicadas periodicamente
-    function cleanupDuplicateCache() {
-        // Limita a quantidade de títulos guardados para evitar uso excessivo de memória
-        if (displayedTitles.size > 500) {
-            console.log('Limpando cache de títulos...');
-            // Converte para array, mantém os últimos 300, volta para Set
-            const titlesArray = Array.from(displayedTitles);
-            displayedTitles = new Set(titlesArray.slice(-300));
-        }
-    }
-
-    // Adiciona limpeza periódica do cache
-    setInterval(cleanupDuplicateCache, 5 * 60 * 1000); // A cada 5 minutos
 
     // Função auxiliar para escapar HTML
     function escapeHtml(unsafe) {

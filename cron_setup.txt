@@ -1,0 +1,2 @@
+# Adicione esta linha ao crontab do servidor (crontab -e):
+0 */2 * * * php /var/www/html/cybersecurity-blog/cache_updater.php > /dev/null 2>&1

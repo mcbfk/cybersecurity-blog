@@ -1,6 +1,10 @@
 <?php
-// Suprimir erros se for uma requisição AJAX
+// Enable error reporting for debugging
 if (isset($_GET['load_more'])) {
+    // For debugging only - remove in production
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
     error_reporting(0);
     ini_set('display_errors', 0);
 }
@@ -278,38 +282,104 @@ function getAllNews() {
 }
 
 /**
- * Remove notícias duplicadas baseadas no título
+ * Remove notícias duplicadas baseado no título e URL
  */
 function removeDuplicateNews($news) {
     $uniqueNews = [];
-    $titles = [];
+    $usedTitles = [];
+    $usedUrls = [];
+    $usedDomains = [];
+    
+    // Para comparação de títulos
+    $similarityThreshold = 0.75; // Aumentado de 0.7 para 0.75 para ser mais seletivo
     
     foreach ($news as $item) {
-        // Normaliza o título para comparação (remove espaços extras, converte para minúsculas)
-        $normalizedTitle = strtolower(trim(preg_replace('/\s+/', ' ', $item['title'])));
+        // Normaliza o título para comparação
+        $title = mb_strtolower(trim($item['title']));
+        $title = preg_replace('/[\s\-_:;.,!?]+/', ' ', $title); // Remove pontuação e espaços extras
+        $title = preg_replace('/\s+/', ' ', $title); // Normaliza múltiplos espaços
+        $title = trim($title);
         
-        // Se o título for muito curto, adiciona sempre para evitar falsos positivos
-        if (strlen($normalizedTitle) < 15) {
-            $uniqueNews[] = $item;
-            $titles[] = $normalizedTitle;
+        // Ignora títulos muito curtos
+        if (mb_strlen($title) < 10) {
             continue;
         }
         
-        // Verifica se já existe notícia com título similar
-        $isDuplicate = false;
-        foreach ($titles as $existingTitle) {
-            // Compara se os títulos são similares (mais de 65% de similaridade)
-            $similarity = similar_text($normalizedTitle, $existingTitle) / max(strlen($normalizedTitle), strlen($existingTitle));
-            if ($similarity > 0.65) {
-                $isDuplicate = true;
-                break;
+        // Extrai domínio da URL para evitar muitas notícias do mesmo site
+        $domain = '';
+        if (!empty($item['url'])) {
+            $parsed_url = parse_url($item['url']);
+            if (isset($parsed_url['host'])) {
+                $domain = $parsed_url['host'];
+                // Remove www. se presente
+                $domain = preg_replace('/^www\./', '', $domain);
             }
         }
         
-        // Se não for duplicada, adiciona à lista de notícias únicas
+        // Verifica se URL é exatamente igual a alguma já usada
+        if (!empty($item['url']) && in_array($item['url'], $usedUrls)) {
+            continue;
+        }
+        
+        // Verifica se URL contém fragmento de paginação (#page=2, etc)
+        if (!empty($item['url']) && preg_match('/#(page|pagina|p)=\d+/i', $item['url'])) {
+            // Verifica se já temos uma URL similar sem o fragmento
+            $baseUrl = preg_replace('/#.*$/', '', $item['url']);
+            if (in_array($baseUrl, $usedUrls)) {
+                continue;
+            }
+        }
+        
+        // Limita número de notícias do mesmo domínio (máximo 3 por domínio)
+        if (!empty($domain)) {
+            if (isset($usedDomains[$domain]) && $usedDomains[$domain] >= 3) {
+                continue;
+            }
+        }
+        
+        // Verifica similaridade com títulos existentes
+        $isDuplicate = false;
+        foreach ($usedTitles as $existingTitle) {
+            if (empty($title) || empty($existingTitle)) {
+                continue;
+            }
+            
+            // Similar_text dá uma porcentagem de similaridade
+            similar_text($title, $existingTitle, $percent);
+            
+            // Se a similaridade for alta, considera duplicata
+            if ($percent > $similarityThreshold * 100) {
+                $isDuplicate = true;
+                break;
+            }
+            
+            // Verifica se um título está contido no outro (caso de subtítulos)
+            if (mb_strlen($title) > 20 && mb_strlen($existingTitle) > 20) {
+                if (strpos($title, $existingTitle) !== false || strpos($existingTitle, $title) !== false) {
+                    $isDuplicate = true;
+                    break;
+                }
+            }
+        }
+        
         if (!$isDuplicate) {
             $uniqueNews[] = $item;
-            $titles[] = $normalizedTitle;
+            $usedTitles[] = $title;
+            
+            if (!empty($item['url'])) {
+                $usedUrls[] = $item['url'];
+                // Também armazena URL sem fragmento
+                $usedUrls[] = preg_replace('/#.*$/', '', $item['url']);
+            }
+            
+            // Incrementa contador de domínio
+            if (!empty($domain)) {
+                if (!isset($usedDomains[$domain])) {
+                    $usedDomains[$domain] = 1;
+                } else {
+                    $usedDomains[$domain]++;
+                }
+            }
         }
     }
     
@@ -437,6 +507,376 @@ function getSampleNews() {
 }
 
 /**
+ * Função para resolver URLs relativos para absolutos
+ */
+function resolveRelativeUrlBase($baseUrl, $relativeUrl) {
+    // Se o URL já for absoluto, retorna ele mesmo
+    if (filter_var($relativeUrl, FILTER_VALIDATE_URL)) {
+        return $relativeUrl;
+    }
+    
+    // Se o URL relativo começar com //, é um URL protocolo-relativo
+    if (substr($relativeUrl, 0, 2) === '//') {
+        // Extrai o protocolo do URL base e o usa
+        $parsedBase = parse_url($baseUrl);
+        $protocol = isset($parsedBase['scheme']) ? $parsedBase['scheme'] : 'https';
+        return $protocol . ':' . $relativeUrl;
+    }
+    
+    // Se o URL relativo começar com /, é relativo à raiz do domínio
+    if (substr($relativeUrl, 0, 1) === '/') {
+        $parsedBase = parse_url($baseUrl);
+        $baseRoot = $parsedBase['scheme'] . '://' . $parsedBase['host'];
+        return $baseRoot . $relativeUrl;
+    }
+    
+    // Para outros URLs relativos, resolve em relação ao URL base
+    $basePathParts = explode('/', rtrim(dirname($baseUrl), '/'));
+    $relativePathParts = explode('/', $relativeUrl);
+    
+    foreach ($relativePathParts as $part) {
+        if ($part === '..') {
+            array_pop($basePathParts);
+        } elseif ($part !== '.') {
+            $basePathParts[] = $part;
+        }
+    }
+    
+    return implode('/', $basePathParts);
+}
+
+/**
+ * Extrai uma URL válida de imagem a partir de elementos HTML
+ * Versão melhorada para priorizar imagens reais dos artigos
+ */
+function extractValidImageUrl($element, $baseUrl) {
+    // Fallback para quando o elemento não é encontrado
+    if (empty($element)) {
+        return '';
+    }
+    
+    // Lista de possíveis atributos que podem conter URLs de imagem
+    $imgAttributes = ['src', 'data-src', 'data-lazy-src', 'data-original', 'data-srcset', 'srcset', 
+                     'data-original-src', 'data-lazy-loaded', 'data-img-url', 'data-full-src', 
+                     'data-large-file', 'data-medium-file', 'loading-src', 'data-hi-res-src'];
+    
+    // Tenta encontrar tag <img> com classes comuns de imagens principais
+    $mainImageClasses = ['featured-image', 'main-image', 'post-image', 'article-image', 'entry-image', 
+                        'thumbnail', 'wp-post-image', 'attachment-large', 'hero-image'];
+    $imgTags = $element->getElementsByTagName('img');
+    
+    // Primeiro tenta imagens com classes específicas de imagens principais
+    foreach ($imgTags as $img) {
+        if ($img->hasAttribute('class')) {
+            $class = $img->getAttribute('class');
+            foreach ($mainImageClasses as $mainClass) {
+                if (strpos($class, $mainClass) !== false) {
+                    foreach ($imgAttributes as $attr) {
+                        if ($img->hasAttribute($attr)) {
+                            $imgUrl = $img->getAttribute($attr);
+                            
+                            // Se for um conjunto de srcset, pega a maior imagem
+                            if ($attr == 'srcset' || $attr == 'data-srcset') {
+                                $imgUrl = extractLargestFromSrcset($imgUrl);
+                            }
+                            
+                            // Resolve URL relativa para absoluta
+                            $imgUrl = resolveRelativeUrlBase($baseUrl, $imgUrl);
+                            
+                            // Verifica se é uma URL válida e se é uma imagem
+                            if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
+                                return $imgUrl;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // Depois tenta qualquer imagem, priorizando as maiores
+    $bestImageUrl = '';
+    $largestArea = 0;
+    
+    foreach ($imgTags as $img) {
+        foreach ($imgAttributes as $attr) {
+            if ($img->hasAttribute($attr)) {
+                $imgUrl = $img->getAttribute($attr);
+                
+                // Se for um conjunto de srcset, pega a maior imagem
+                if ($attr == 'srcset' || $attr == 'data-srcset') {
+                    $imgUrl = extractLargestFromSrcset($imgUrl);
+                }
+                
+                // Resolve URL relativa para absoluta
+                $imgUrl = resolveRelativeUrlBase($baseUrl, $imgUrl);
+                
+                // Verifica se é uma URL válida e se é uma imagem de tamanho adequado
+                if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
+                    // Tenta obter as dimensões da imagem dos atributos
+                    $width = $img->hasAttribute('width') ? intval($img->getAttribute('width')) : 0;
+                    $height = $img->hasAttribute('height') ? intval($img->getAttribute('height')) : 0;
+                    
+                    // Se as dimensões estão disponíveis, calcula a área
+                    if ($width > 0 && $height > 0) {
+                        $area = $width * $height;
+                        if ($area > $largestArea) {
+                            $largestArea = $area;
+                            $bestImageUrl = $imgUrl;
+                        }
+                    } 
+                    // Se não temos as dimensões, mas ainda não encontramos nenhuma imagem
+                    else if (empty($bestImageUrl)) {
+                        $bestImageUrl = $imgUrl;
+                    }
+                }
+            }
+        }
+    }
+    
+    // Se encontramos uma imagem boa, retorna ela
+    if (!empty($bestImageUrl)) {
+        return $bestImageUrl;
+    }
+    
+    // Tenta encontrar tag <meta property="og:image">
+    $metas = $element->ownerDocument->getElementsByTagName('meta');
+    foreach ($metas as $meta) {
+        if (($meta->hasAttribute('property') && $meta->getAttribute('property') == 'og:image') || 
+            ($meta->hasAttribute('name') && $meta->getAttribute('name') == 'twitter:image')) {
+            if ($meta->hasAttribute('content')) {
+                $imgUrl = $meta->getAttribute('content');
+                $imgUrl = resolveRelativeUrlBase($baseUrl, $imgUrl);
+                
+                if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
+                    return $imgUrl;
+                }
+            }
+        }
+    }
+    
+    // Tenta encontrar tag <source> (comum em <picture>)
+    $sourceTags = $element->getElementsByTagName('source');
+    foreach ($sourceTags as $source) {
+        foreach ($imgAttributes as $attr) {
+            if ($source->hasAttribute($attr)) {
+                $imgUrl = $source->getAttribute($attr);
+                
+                // Se for um conjunto de srcset, pega a maior imagem
+                if ($attr == 'srcset' || $attr == 'data-srcset') {
+                    $imgUrl = extractLargestFromSrcset($imgUrl);
+                }
+                
+                // Resolve URL relativa para absoluta
+                $imgUrl = resolveRelativeUrlBase($baseUrl, $imgUrl);
+                
+                // Verifica se é uma URL válida e se é uma imagem
+                if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
+                    return $imgUrl;
+                }
+            }
+        }
+    }
+    
+    // Tenta encontrar imagens em background CSS
+    $divs = $element->getElementsByTagName('div');
+    foreach ($divs as $div) {
+        if ($div->hasAttribute('style')) {
+            $style = $div->getAttribute('style');
+            if (preg_match('/background(-image)?\s*:\s*url\([\'"]?([^\'"]*)[\'"]?\)/i', $style, $matches)) {
+                $imgUrl = $matches[2];
+                
+                // Resolve URL relativa para absoluta
+                $imgUrl = resolveRelativeUrlBase($baseUrl, $imgUrl);
+                
+                // Verifica se é uma URL válida e se é uma imagem
+                if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
+                    return $imgUrl;
+                }
+            }
+        }
+    }
+    
+    // Tenta encontrar uma tag <a> com uma imagem (caso o artigo seja apenas um link)
+    $links = $element->getElementsByTagName('a');
+    foreach ($links as $link) {
+        if ($link->hasAttribute('href') && preg_match('/\.(jpe?g|png|gif|webp)$/i', $link->getAttribute('href'))) {
+            $imgUrl = $link->getAttribute('href');
+            
+            // Resolve URL relativa para absoluta
+            $imgUrl = resolveRelativeUrlBase($baseUrl, $imgUrl);
+            
+            // Verifica se é uma URL válida e se é uma imagem
+            if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
+                return $imgUrl;
+            }
+        }
+    }
+    
+    // Última tentativa - procura qualquer elemento com background-image
+    $allElements = $element->getElementsByTagName('*');
+    foreach ($allElements as $el) {
+        if ($el->hasAttribute('style')) {
+            $style = $el->getAttribute('style');
+            if (preg_match('/background(-image)?\s*:\s*url\([\'"]?([^\'"]*)[\'"]?\)/i', $style, $matches)) {
+                $imgUrl = $matches[2];
+                
+                // Resolve URL relativa para absoluta
+                $imgUrl = resolveRelativeUrlBase($baseUrl, $imgUrl);
+                
+                // Verifica se é uma URL válida e se é uma imagem
+                if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
+                    return $imgUrl;
+                }
+            }
+        }
+    }
+    
+    // Tenta puxar qualquer imagem do documento inteiro como último recurso
+    $docImgTags = $element->ownerDocument->getElementsByTagName('img');
+    foreach ($docImgTags as $img) {
+        if ($img->hasAttribute('src')) {
+            $imgUrl = $img->getAttribute('src');
+            $imgUrl = resolveRelativeUrlBase($baseUrl, $imgUrl);
+            
+            if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
+                return $imgUrl;
+            }
+        }
+    }
+    
+    // Nenhuma imagem encontrada
+    return '';
+}
+
+/**
+ * Extrai a maior imagem de um conjunto srcset
+ */
+function extractLargestFromSrcset($srcset) {
+    $srcsetParts = explode(',', $srcset);
+    $largestSize = 0;
+    $largestUrl = '';
+    
+    foreach ($srcsetParts as $part) {
+        $part = trim($part);
+        if (preg_match('/^(.+)\s+(\d+)w$/i', $part, $matches)) {
+            $url = trim($matches[1]);
+            $size = intval($matches[2]);
+            
+            if ($size > $largestSize) {
+                $largestSize = $size;
+                $largestUrl = $url;
+            }
+        } else if (empty($largestUrl)) {
+            // Se não tem tamanho definido, pega a primeira URL
+            $largestUrl = preg_replace('/\s+\d+[wx].*$/', '', $part);
+        }
+    }
+    
+    return !empty($largestUrl) ? $largestUrl : $srcset;
+}
+
+/**
+ * Verifica se é uma imagem pequena ou ícone
+ */
+function isSmallOrIconImage($url) {
+    // Verifica se a URL contém indicações de que é um ícone
+    if (preg_match('/icon|logo|avatar|favicon|thumb(\-|\.|_)?(small|tiny|min)|badge|button|banner|social|widget|gravatar|20x20|24x24|32x32|48x48|64x64/i', $url)) {
+        return true;
+    }
+    
+    // Verifica se tem dimensão no nome e se é pequena
+    if (preg_match('/(\-|\.|_)(\d+x\d+|w\d+|h\d+|size\d+)/i', $url)) {
+        if (preg_match('/(\-|\.|_)(\d+)x(\d+)/i', $url, $matches)) {
+            $width = intval($matches[2]);
+            $height = intval($matches[3]);
+            // Imagens menores que 300px são consideradas pequenas
+            if ($width < 300 || $height < 300) {
+                return true;
+            }
+        }
+    }
+    
+    return false;
+}
+
+/**
+ * Verifica se uma URL é uma imagem válida
+ */
+function isValidImageUrl($url) {
+    // Remove whitespace e verifica se é vazia
+    $url = trim($url);
+    if (empty($url)) {
+        return false;
+    }
+    
+    // Verifica se a URL tem extensão de imagem comum
+    if (preg_match('/\.(jpe?g|png|gif|webp|svg|avif)(\?.*)?$/i', $url)) {
+        return true;
+    }
+    
+    // Verifica se não é um ícone ou outra imagem pequena
+    if (preg_match('/icon|logo|avatar|favicon|thumb(\-|\.|_)?(small|tiny|min)/i', $url)) {
+        return false;
+    }
+    
+    // Verifica tamanho dos arquivos se tiver dimensão no nome do arquivo (comum em CDNs)
+    if (preg_match('/(\-|\.|_)(\d+x\d+|w\d+|h\d+|size\d+)/i', $url)) {
+        if (preg_match('/(\-|\.|_)(\d+x\d+)/i', $url, $matches)) {
+            $dimensions = explode('x', strtolower($matches[2]));
+            if (count($dimensions) == 2) {
+                // Se a imagem for muito pequena (menos de 300px em qualquer dimensão), provavelmente não é uma imagem principal
+                if (intval($dimensions[0]) < 300 || intval($dimensions[1]) < 300) {
+                    return false;
+                }
+            }
+        }
+    }
+    
+    // Aceita URLs de CDNs de imagens conhecidas
+    $knownImageCDNs = [
+        'img.', 'image.', 'images.', 'media.', 'cdn.', 'assets.',
+        'wp-content/uploads', 'uploads', 'photos', 'pictures'
+    ];
+    
+    foreach ($knownImageCDNs as $cdn) {
+        if (stripos($url, $cdn) !== false) {
+            return true;
+        }
+    }
+    
+    // Se chegou até aqui, tenta verificar através do Content-Type
+    if (function_exists('curl_init')) {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $response = curl_exec($ch);
+        
+        if ($response !== false) {
+            $contentType = '';
+            
+            // Extrai Content-Type do header
+            if (preg_match('/Content-Type: (image\/[^\s;]+)/i', $response, $matches)) {
+                $contentType = $matches[1];
+            }
+            
+            curl_close($ch);
+            
+            if (!empty($contentType) && strpos($contentType, 'image/') === 0) {
+                return true;
+            }
+        } else {
+            curl_close($ch);
+        }
+    }
+    
+    return false;
+}
+
+/**
  * Faz o scraping de um site específico
  */
 function scrapeWebsite($site) {
@@ -447,12 +887,20 @@ function scrapeWebsite($site) {
         return $news;
     }
 
+    // Use libxml_use_internal_errors to suppress warnings during HTML parsing
+    libxml_use_internal_errors(true);
+
     $dom = new DOMDocument();
     @$dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
     $xpath = new DOMXPath($dom);
+    
+    // Clear libxml errors
+    libxml_clear_errors();
 
     try {
         // Tenta diferentes estratégias para encontrar artigos
+        $articles = null;
+        
         try {
             // Usa apenas seletores simples e seguros
             if ($site['article_selector'] == 'article') {
@@ -547,126 +995,93 @@ function scrapeWebsite($site) {
             
             // Verifica se a URL é relativa e adiciona o domínio
             if ($linkUrl && strpos($linkUrl, 'http') !== 0) {
-                $parsedUrl = parse_url($site['url']);
-                $domain = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
-                $linkUrl = $domain . ($linkUrl[0] == '/' ? '' : '/') . $linkUrl;
+                $linkUrl = resolveRelativeUrlBase($site['url'], $linkUrl);
             }
             
-            // Busca melhor imagem do artigo
+            // Obtém a imagem, primeiro tentando no artigo e depois no conteúdo da página linkada
             $imageUrl = '';
             
-            // Tenta encontrar imagem destacada ou principal
-            try {
-                // Usa apenas seletores simples e seguros
-                $imageElements = null;
-                
+            // 1. Primeiro tenta extrair do elemento do artigo na lista
+            if (!empty($site['image_selector'])) {
                 try {
-                    if ($site['image_selector'] == 'img') {
-                        $imageElements = $xpath->query(".//img", $article);
-                    } else {
-                        // Para seletores complexos, usa img como fallback
-                        $imageElements = $xpath->query(".//img", $article);
+                    $imageNode = $xpath->query($site['image_selector'], $article)->item(0);
+                    if ($imageNode) {
+                        $imageUrl = extractValidImageUrl($imageNode, $site['url']);
                     }
                 } catch (Exception $e) {
-                    $imageElements = null;
+                    // Se falhar, tenta encontrar qualquer imagem
+                    $imageUrl = '';
                 }
-                
-                if (!$imageElements || $imageElements->length == 0) {
-                    // Tenta seletores específicos um por um para evitar erro de expressão
-                    $imageElements = $xpath->query(".//img[@class='featured']", $article);
-                }
-                
-                if (!$imageElements || $imageElements->length == 0) {
-                    $imageElements = $xpath->query(".//img[@class='thumb']", $article);
-                }
-                
-                if (!$imageElements || $imageElements->length == 0) {
-                    $imageElements = $xpath->query(".//img[@class='post-image']", $article);
-                }
-                
-                if (!$imageElements || $imageElements->length == 0) {
-                    // Tenta simplesmente qualquer imagem no artigo
-                    $imageElements = $xpath->query(".//img", $article);
-                }
-                
-                // Se encontrou alguma imagem
-                if ($imageElements && $imageElements->length > 0) {
-                    $image = $imageElements->item(0);
-                    // Verifica atributos possíveis para a URL da imagem
-                    $imageUrl = $image->getAttribute('data-src');
-                    if (empty($imageUrl)) {
-                        $imageUrl = $image->getAttribute('data-lazy-src');
-                    }
-                    if (empty($imageUrl)) {
-                        $imageUrl = $image->getAttribute('src');
-                    }
-                }
-            } catch (Exception $e) {
-                // Se falhar a busca por imagem, continua com imagem vazia
             }
             
-            // Se ainda não encontrou, busca na página toda
+            // 2. Se não encontrou imagem, procura em padrões comuns dentro do artigo
+            if (empty($imageUrl)) {
+                // Tenta encontrar imagens dentro do artigo
+                $imgTags = $xpath->query('.//img', $article);
+                if ($imgTags->length > 0) {
+                    foreach ($imgTags as $img) {
+                        $potentialUrl = extractValidImageUrl($img, $site['url']);
+                        if (!empty($potentialUrl) && 
+                            strpos($potentialUrl, 'data:image') !== 0 && 
+                            !isSmallOrIconImage($potentialUrl)) {
+                            $imageUrl = $potentialUrl;
+                            break;
+                        }
+                    }
+                }
+                
+                // Tenta encontrar elementos de imagem de fundo
+                    if (empty($imageUrl)) {
+                    $divsWithBg = $xpath->query('.//*[@style[contains(., "background")]]', $article);
+                    if ($divsWithBg->length > 0) {
+                        foreach ($divsWithBg as $div) {
+                            $potentialUrl = extractValidImageUrl($div, $site['url']);
+                            if (!empty($potentialUrl) && strpos($potentialUrl, 'data:image') !== 0) {
+                                $imageUrl = $potentialUrl;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // 3. Se ainda não encontramos uma imagem e temos o URL do artigo, tenta buscar diretamente no artigo
             if (empty($imageUrl) && !empty($linkUrl)) {
-                try {
-                    // Tenta buscar link completo da notícia para pegar a imagem
+                // Tentativa de carregar o artigo completo para encontrar a imagem
                     $articleHtml = getWebsiteContent($linkUrl);
                     if ($articleHtml) {
                         $articleDom = new DOMDocument();
                         @$articleDom->loadHTML(mb_convert_encoding($articleHtml, 'HTML-ENTITIES', 'UTF-8'));
-                        $articleXpath = new DOMXPath($articleDom);
-                        
-                        // Tenta buscar meta tags Open Graph para imagem
-                        $metaImages = $articleXpath->query("//meta[@property='og:image']");
-                        if ($metaImages && $metaImages->length > 0) {
-                            $imageUrl = $metaImages->item(0)->getAttribute('content');
-                        }
-                        
-                        // Se não encontrou, busca imagens grandes na página de forma mais segura
-                        if (empty($imageUrl)) {
-                            // Busca imagens de forma mais simples, um seletor por vez
-                            $largeImages = $articleXpath->query("//img");
-                            if ($largeImages && $largeImages->length > 0) {
-                                // Pega a primeira imagem grande que encontrar
-                                for ($j = 0; $j < min($largeImages->length, 5); $j++) {
-                                    $imgWidth = $largeImages->item($j)->getAttribute('width');
-                                    // Se a imagem tem largura definida e é maior que 300px, usa ela
-                                    if (!empty($imgWidth) && intval($imgWidth) > 300) {
-                                        $imageUrl = $largeImages->item($j)->getAttribute('src');
-                                        if (empty($imageUrl)) {
-                                            $imageUrl = $largeImages->item($j)->getAttribute('data-src');
-                                        }
-                                        if (!empty($imageUrl)) {
+                    
+                    // Prioriza meta tags de OpenGraph
+                    $metas = $articleDom->getElementsByTagName('meta');
+                    foreach ($metas as $meta) {
+                        if (($meta->hasAttribute('property') && $meta->getAttribute('property') == 'og:image') || 
+                            ($meta->hasAttribute('name') && $meta->getAttribute('name') == 'twitter:image')) {
+                            if ($meta->hasAttribute('content')) {
+                                $imgUrl = $meta->getAttribute('content');
+                                $imgUrl = resolveRelativeUrlBase($linkUrl, $imgUrl);
+                                
+                                if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
+                                    $imageUrl = $imgUrl;
                                             break;
+                                }
                                         }
                                     }
                                 }
                                 
-                                // Se ainda não encontrou, usa a primeira imagem
+                    // Se ainda não encontrou, procura a maior imagem no artigo
                                 if (empty($imageUrl)) {
-                                    $imageUrl = $largeImages->item(0)->getAttribute('src');
-                                    if (empty($imageUrl)) {
-                                        $imageUrl = $largeImages->item(0)->getAttribute('data-src');
-                                    }
-                                }
-                            }
+                        $articleImg = extractValidImageUrl($articleDom, $linkUrl);
+                        if (!empty($articleImg)) {
+                            $imageUrl = $articleImg;
                         }
                     }
-                } catch (Exception $e) {
-                    // Se falhar, continua com imagem vazia
                 }
             }
             
-            // Verifica se a URL da imagem é relativa e adiciona o domínio
-            if ($imageUrl && strpos($imageUrl, 'http') !== 0) {
-                $parsedUrl = parse_url($site['url']);
-                $domain = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
-                $imageUrl = $domain . ($imageUrl[0] == '/' ? '' : '/') . $imageUrl;
-            }
-            
-            // Se não encontrou imagem, coloca uma imagem padrão
-            if (!$imageUrl) {
-                $imageUrl = 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
-            }
+            // Se mesmo após todas as tentativas não encontramos uma imagem válida,
+            // deixamos vazio em vez de usar uma imagem padrão
             
             // Busca descrição
             $descriptionText = "";
@@ -722,9 +1137,9 @@ function scrapeWebsite($site) {
  * Inclui sistema de cache para não sobrecarregar os sites
  */
 function getWebsiteContent($url) {
-    // Verifica se existe cache e se não está expirado (2 horas)
+    // Verifica se existe cache e se não está expirado (estendido para 6 horas)
     $cacheFile = 'cache/' . md5($url) . '.html';
-    $cacheTime = 7200; // 2 horas
+    $cacheTime = 21600; // 6 horas (aumentado de 2 para 6 horas)
     
     // Cria diretório de cache se não existir
     if (!file_exists('cache')) {
@@ -733,6 +1148,15 @@ function getWebsiteContent($url) {
     
     // Verifica se o cache existe e está válido
     if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheTime)) {
+        return file_get_contents($cacheFile);
+    }
+    
+    // Para requisições AJAX, priorize a velocidade e use cache mesmo se expirado
+    if (isset($_GET['load_more']) && file_exists($cacheFile)) {
+        // Atualiza a data do arquivo para estender sua vida útil
+        touch($cacheFile);
+        // Agenda uma atualização assíncrona para depois
+        touch('cache/update_needed.flag');
         return file_get_contents($cacheFile);
     }
     
@@ -745,72 +1169,106 @@ function getWebsiteContent($url) {
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5); // Reduzido de 10 para 5 segundos
     curl_setopt($ch, CURLOPT_ENCODING, ''); // Aceita codificação gzip
     
-    // Adiciona um delay aleatório para não sobrecarregar os sites
-    usleep(rand(500000, 1500000)); // 0.5 a 1.5 segundos
+    // Adiciona um delay reduzido para não sobrecarregar os sites
+    usleep(rand(100000, 300000)); // 0.1 a 0.3 segundos (reduzido de 0.5-1.5s)
     
     $html = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     
     curl_close($ch);
     
-    if ($httpCode >= 200 && $httpCode < 300) {
+    if ($httpCode >= 200 && $httpCode < 300 && !empty($html)) {
         // Salva o resultado no cache
         file_put_contents($cacheFile, $html);
         return $html;
+    } else if (file_exists($cacheFile)) {
+        // Se a requisição falhou mas existe cache, usa o cache mesmo que expirado
+        return file_get_contents($cacheFile);
     }
     
     return false;
 }
 
-/**
- * Função para carregar mais notícias (usado pelo AJAX para scroll infinito)
- */
+// Adicionar API endpoint para carregar mais notícias
 if (isset($_GET['load_more'])) {
-    // Set headers for JSON response
+    // Definir tempos limite de execução mais generosos para scraping inicial
+    set_time_limit(60); // 60 segundos para executar
+    
+    // Usar cache de notícias para carregamento mais rápido
+    $cacheFile = 'cache/news_cache_' . $_GET['lang'] . '_' . $_GET['page'] . '.json';
+    $cacheTime = 3600; // 1 hora
+    
+    // Verifica se o cache existe e está válido
+    if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheTime)) {
+        // Retorna diretamente do cache
     header('Content-Type: application/json');
-    
-    // Get current page and items per page
-    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $itemsPerPage = isset($_GET['items']) ? (int)$_GET['items'] : 12;
-    
-    // Obter filtro de idioma
-    $languageFilter = isset($_GET['lang']) ? $_GET['lang'] : 'all';
-    
-    // Get all news
-    $allNews = getAllNews();
-    
-    // Filtrar notícias por idioma se necessário
-    if ($languageFilter !== 'all') {
-        $filteredNews = [];
-        foreach ($allNews as $item) {
-            if (isset($item['language']) && $item['language'] === $languageFilter) {
-                $filteredNews[] = $item;
-            }
-        }
-        $allNews = $filteredNews;
+        header('X-Cache: HIT');
+        echo file_get_contents($cacheFile);
+        exit;
     }
     
-    // Calculate offset based on page
+    // Determinar página e número de itens
+    $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+    $itemsPerPage = isset($_GET['items']) ? intval($_GET['items']) : 16;
+    $lang = isset($_GET['lang']) ? $_GET['lang'] : 'all';
+    
+    // Validar parâmetros
+    if ($page < 1) $page = 1;
+    if ($itemsPerPage < 1 || $itemsPerPage > 50) $itemsPerPage = 16;
+    
+    // Obter todas as notícias (talvez precisemos limitar isso no futuro para performance)
+    $allNewsFromScrapers = getAllNews();
+    
+    // Filtrar por idioma se necessário
+    $filteredNews = $allNewsFromScrapers;
+    if ($lang !== 'all') {
+        $filteredNews = array_filter($allNewsFromScrapers, function($news) use ($lang) {
+            return isset($news['language']) && $news['language'] === $lang;
+        });
+        
+        // Reordenar os índices
+        $filteredNews = array_values($filteredNews);
+    }
+    
+    // Calcular índices para paginação
+    $totalItems = count($filteredNews);
     $offset = ($page - 1) * $itemsPerPage;
     
-    // Get news slice for current page
-    $newsSlice = array_slice($allNews, $offset, $itemsPerPage);
+    // Verificar se ainda há mais itens após esta página
+    $hasMore = ($offset + $itemsPerPage) < $totalItems;
     
-    // Check if there are more news available
-    $hasMore = (count($allNews) > ($offset + $itemsPerPage));
+    // Obter os itens para esta página
+    $newsItems = array_slice($filteredNews, $offset, $itemsPerPage);
     
-    // Return JSON response
-    echo json_encode([
-        'news' => $newsSlice,
+    // Garantir que os índices comecem em 0
+    $newsItems = array_values($newsItems);
+    
+    // Preparar resposta
+    $response = [
+        'news' => $newsItems,
         'hasMore' => $hasMore,
-        'total' => count($allNews),
-        'page' => $page,
-        'filter' => $languageFilter,
-        'message' => count($newsSlice) > 0 ? 'Notícias carregadas com sucesso' : 'Não há mais notícias para carregar'
-    ]);
+        'currentPage' => $page,
+        'totalPages' => ceil($totalItems / $itemsPerPage),
+        'totalItems' => $totalItems,
+        'itemsPerPage' => $itemsPerPage,
+        'remaining' => max(0, $totalItems - ($offset + $itemsPerPage)),
+        'lang' => $lang,
+        'cached' => false,
+        'timestamp' => time()
+    ];
     
+    // Salvar em cache para futuras requisições
+    file_put_contents($cacheFile, json_encode($response));
+    
+    // Retornar como JSON
+    header('Content-Type: application/json');
+    header('X-Cache: MISS');
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Cache-Control: post-check=0, pre-check=0', false);
+    header('Pragma: no-cache');
+    echo json_encode($response);
     exit;
 }

@@ -1,4 +1,7 @@
 <?php
+// Incluir o script de pré-carregamento no início
+include 'preload.php';
+
 // Inclui o scraper de notícias
 include 'scraper.php';
 
