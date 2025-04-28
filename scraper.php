@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Enable error reporting for debugging
 if (isset($_GET['load_more'])) {
     // For debugging only - remove in production
@@ -9,12 +9,15 @@ if (isset($_GET['load_more'])) {
     ini_set('display_errors', 0);
 }
 
+// Cache global para URLs de imagens fallback - evitar gerar muitas imagens Ãºnicas
+$GLOBALS['image_fallback_cache'] = [];
+
 /**
- * Scraper de notícias de cybersecurity
+ * Scraper de notÃ­cias de cybersecurity
  */
 
 /**
- * Obtem todas as notícias dos sites de segurança
+ * Obtem todas as notÃ­cias dos sites de seguranÃ§a
  */
 function getAllNews() {
     $sites = [
@@ -73,7 +76,7 @@ function getAllNews() {
             'link_selector' => 'a'
         ],
         [
-            'name' => 'Bloomberg Línea',
+            'name' => 'Bloomberg LÃ­nea',
             'url' => 'https://www.bloomberglinea.com.br/tag/ciberataques/',
             'article_selector' => 'article',
             'title_selector' => 'h2, h3',
@@ -100,7 +103,7 @@ function getAllNews() {
             'link_selector' => 'a'
         ],
         [
-            'name' => 'Minuto da Segurança',
+            'name' => 'Minuto da SeguranÃ§a',
             'url' => 'https://minutodaseguranca.blog.br/',
             'article_selector' => 'article, .post',
             'title_selector' => 'h2, h3',
@@ -145,7 +148,7 @@ function getAllNews() {
             'link_selector' => 'a'
         ],
         [
-            'name' => 'CanalTech Segurança',
+            'name' => 'CanalTech SeguranÃ§a',
             'url' => 'https://canaltech.com.br/seguranca/',
             'article_selector' => 'article, .ct-article',
             'title_selector' => 'h2, h3',
@@ -172,7 +175,7 @@ function getAllNews() {
             'link_selector' => 'a'
         ],
         [
-            'name' => 'Convergência Digital',
+            'name' => 'ConvergÃªncia Digital',
             'url' => 'https://www.convergenciadigital.com.br/Seguranca',
             'article_selector' => 'article, .view-content',
             'title_selector' => 'h2, h3',
@@ -242,23 +245,23 @@ function getAllNews() {
     foreach ($sites as $site) {
         $news = scrapeWebsite($site);
         
-        // Adiciona a fonte a cada notícia para melhor rastreabilidade
+        // Adiciona a fonte a cada notÃ­cia para melhor rastreabilidade
         foreach ($news as &$item) {
-            // Garante que o título é único adicionando a fonte
+            // Garante que o tÃ­tulo Ã© Ãºnico adicionando a fonte
             if (!isset($item['original_title'])) {
                 $item['original_title'] = $item['title'];
             }
             
-            // Identifica se é site internacional (inglês) baseado no domínio
+            // Identifica se Ã© site internacional (inglÃªs) baseado no domÃ­nio
             $isEnglish = !preg_match('/(\.br|\.com\.br)/i', $site['url']);
             $item['language'] = $isEnglish ? 'en' : 'pt';
             
-            // Se o título for muito curto ou genérico, adiciona o nome da fonte para diferenciar
+            // Se o tÃ­tulo for muito curto ou genÃ©rico, adiciona o nome da fonte para diferenciar
             if (strlen($item['title']) < 25) {
                 $item['title'] = $item['title'] . ' - ' . $item['source'];
             }
             
-            // Para sites em inglês, adicionar indicação no título se não estiver em português
+            // Para sites em inglÃªs, adicionar indicaÃ§Ã£o no tÃ­tulo se nÃ£o estiver em portuguÃªs
             if ($isEnglish) {
                 $item['title'] = '[EN] ' . $item['title'];
             }
@@ -267,22 +270,70 @@ function getAllNews() {
         $allNews = array_merge($allNews, $news);
     }
 
-    // Se não conseguiu notícias, cria algumas de exemplo
-    if (count($allNews) == 0) {
-        $allNews = getSampleNews();
-    }
-    
-    // Remove notícias duplicadas
+    // Remove notÃ­cias duplicadas
     $allNews = removeDuplicateNews($allNews);
 
-    // Embaralha as notícias para ter uma mistura de fontes
+    // Embaralha as notÃ­cias para ter uma mistura de fontes
     shuffle($allNews);
+
+    // Filtrar notÃ­cias para remover aquelas sem imagens vÃ¡lidas
+    $allNews = array_filter($allNews, function($item) {
+        // Remove notÃ­cias com URLs de imagem invÃ¡lidas
+        if (!isset($item['image']) || empty($item['image'])) {
+            return false;
+        }
+        
+        $image = $item['image'];
+        
+        // Lista de padrÃµes para imagens invÃ¡lidas
+        $invalidPatterns = [
+            '@', 'unsplash.com', 'placeholder', 'default', 
+            'logo-', 'logo.', 'missing-', '-ico.', 'icon.',
+            'favicon', 'no-image', 'newsletter', 'banner',
+            'author', 'profile', 'avatar', 'anonymous',
+            'thumb-', '-thumb', 'button', '.svg', 'pixel.gif',
+            'spacer', '1x1', 'blank', 'transparent'
+        ];
+        
+        // Verificar por padrÃµes invÃ¡lidos
+        foreach ($invalidPatterns as $pattern) {
+            if (stripos($image, $pattern) !== false) {
+                return false;
+            }
+        }
+        
+        // Verificar se a URL contÃ©m extensÃ£o de imagem
+        $validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+        $hasValidExtension = false;
+        
+        foreach ($validExtensions as $ext) {
+            if (stripos($image, $ext) !== false) {
+                $hasValidExtension = true;
+                break;
+            }
+        }
+        
+        // Se nÃ£o tem extensÃ£o vÃ¡lida, verifica se a URL termina com algum parÃ¢metro de imagem
+        if (!$hasValidExtension && !preg_match('/(image|foto|picture|img)/i', $image)) {
+            return false;
+        }
+        
+        // Verificar se a URL Ã© absoluta (deve comeÃ§ar com http ou https)
+        if (!preg_match('/^https?:\/\//i', $image)) {
+            return false;
+        }
+        
+        return true;
+    });
+    
+    // Reindexar o array
+    $allNews = array_values($allNews);
 
     return $allNews;
 }
 
 /**
- * Remove notícias duplicadas baseado no título e URL
+ * Remove notÃ­cias duplicadas baseado no tÃ­tulo e URL
  */
 function removeDuplicateNews($news) {
     $uniqueNews = [];
@@ -290,22 +341,27 @@ function removeDuplicateNews($news) {
     $usedUrls = [];
     $usedDomains = [];
     
-    // Para comparação de títulos
-    $similarityThreshold = 0.75; // Aumentado de 0.7 para 0.75 para ser mais seletivo
+    // Para comparaÃ§Ã£o de tÃ­tulos - aumentando o threshold para ser mais restritivo
+    $similarityThreshold = 0.85; // Aumentado para 85% para ser mais rigoroso
     
     foreach ($news as $item) {
-        // Normaliza o título para comparação
+        // Ignorar itens sem tÃ­tulo, URL ou imagem
+        if (empty($item['title']) || empty($item['url']) || empty($item['image'])) {
+            continue;
+        }
+        
+        // Normaliza o tÃ­tulo para comparaÃ§Ã£o
         $title = mb_strtolower(trim($item['title']));
-        $title = preg_replace('/[\s\-_:;.,!?]+/', ' ', $title); // Remove pontuação e espaços extras
-        $title = preg_replace('/\s+/', ' ', $title); // Normaliza múltiplos espaços
+        $title = preg_replace('/[\s\-_:;.,!?]+/', ' ', $title); // Remove pontuaÃ§Ã£o e espaÃ§os extras
+        $title = preg_replace('/\s+/', ' ', $title); // Normaliza mÃºltiplos espaÃ§os
         $title = trim($title);
         
-        // Ignora títulos muito curtos
+        // Ignora tÃ­tulos muito curtos ou genÃ©ricos
         if (mb_strlen($title) < 10) {
             continue;
         }
         
-        // Extrai domínio da URL para evitar muitas notícias do mesmo site
+        // Extrai domÃ­nio da URL para evitar muitas notÃ­cias do mesmo site
         $domain = '';
         if (!empty($item['url'])) {
             $parsed_url = parse_url($item['url']);
@@ -316,35 +372,45 @@ function removeDuplicateNews($news) {
             }
         }
         
-        // Verifica se URL é exatamente igual a alguma já usada
+        // Verifica se URL Ã© exatamente igual a alguma jÃ¡ usada
         if (!empty($item['url']) && in_array($item['url'], $usedUrls)) {
             continue;
         }
         
-        // Verifica se URL contém fragmento de paginação (#page=2, etc)
+        // Verifica se URL contÃ©m fragmento de paginaÃ§Ã£o (#page=2, etc)
         if (!empty($item['url']) && preg_match('/#(page|pagina|p)=\d+/i', $item['url'])) {
-            // Verifica se já temos uma URL similar sem o fragmento
+            // Verifica se jÃ¡ temos uma URL similar sem o fragmento
             $baseUrl = preg_replace('/#.*$/', '', $item['url']);
             if (in_array($baseUrl, $usedUrls)) {
                 continue;
             }
         }
         
-        // Limita número de notícias do mesmo domínio (máximo 3 por domínio)
+        // Limita nÃºmero de notÃ­cias do mesmo domÃ­nio (mÃ¡ximo 2 por domÃ­nio)
         if (!empty($domain)) {
-            if (isset($usedDomains[$domain]) && $usedDomains[$domain] >= 3) {
+            if (isset($usedDomains[$domain]) && $usedDomains[$domain] >= 2) {
                 continue;
             }
         }
         
-        // Verifica similaridade com títulos existentes
+        // Verifica similaridade com tÃ­tulos existentes
         $isDuplicate = false;
         foreach ($usedTitles as $existingTitle) {
             if (empty($title) || empty($existingTitle)) {
                 continue;
             }
             
-            // Similar_text dá uma porcentagem de similaridade
+            // Procura por "Tags" no inÃ­cio - ex: [EN], [NotÃ­cia], etc
+            $cleanTitle = preg_replace('/^\[[^\]]+\]\s*/', '', $title);
+            $cleanExistingTitle = preg_replace('/^\[[^\]]+\]\s*/', '', $existingTitle);
+            
+            // Se os tÃ­tulos "limpos" forem exatamente iguais (ignorando tags)
+            if ($cleanTitle === $cleanExistingTitle) {
+                $isDuplicate = true;
+                break;
+            }
+            
+            // Similar_text dÃ¡ uma porcentagem de similaridade
             similar_text($title, $existingTitle, $percent);
             
             // Se a similaridade for alta, considera duplicata
@@ -353,9 +419,24 @@ function removeDuplicateNews($news) {
                 break;
             }
             
-            // Verifica se um título está contido no outro (caso de subtítulos)
+            // Verifica se um tÃ­tulo estÃ¡ contido no outro (caso de subtÃ­tulos)
             if (mb_strlen($title) > 20 && mb_strlen($existingTitle) > 20) {
                 if (strpos($title, $existingTitle) !== false || strpos($existingTitle, $title) !== false) {
+                    $isDuplicate = true;
+                    break;
+                }
+            }
+            
+            // Verifica palavras-chave especÃ­ficas de duplicaÃ§Ã£o
+            $titleWords = explode(' ', $title);
+            $existingWords = explode(' ', $existingTitle);
+            
+            // Se ambos os tÃ­tulos tÃªm mais de 4 palavras e compartilham pelo menos 70% das palavras
+            if (count($titleWords) > 4 && count($existingWords) > 4) {
+                $commonWords = array_intersect($titleWords, $existingWords);
+                $commonPercent = count($commonWords) / min(count($titleWords), count($existingWords));
+                
+                if ($commonPercent > 0.7) {
                     $isDuplicate = true;
                     break;
                 }
@@ -368,11 +449,11 @@ function removeDuplicateNews($news) {
             
             if (!empty($item['url'])) {
                 $usedUrls[] = $item['url'];
-                // Também armazena URL sem fragmento
+                // TambÃ©m armazena URL sem fragmento
                 $usedUrls[] = preg_replace('/#.*$/', '', $item['url']);
             }
             
-            // Incrementa contador de domínio
+            // Incrementa contador de domÃ­nio
             if (!empty($domain)) {
                 if (!isset($usedDomains[$domain])) {
                     $usedDomains[$domain] = 1;
@@ -387,135 +468,15 @@ function removeDuplicateNews($news) {
 }
 
 /**
- * Notícias de exemplo para caso o scraping falhe
- */
-function getSampleNews() {
-    return [
-        [
-            'title' => 'Nova vulnerabilidade descoberta em sistemas Windows',
-            'image' => 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Pesquisadores descobriram uma falha crítica que afeta milhões de dispositivos Windows em todo o mundo.',
-            'url' => 'https://www.tecmundo.com.br/seguranca',
-            'source' => 'TecMundo'
-        ],
-        [
-            'title' => 'Ataque de ransomware paralisa empresa de grande porte',
-            'image' => 'https://images.unsplash.com/photo-1566837945700-30057527ade0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Uma das maiores empresas do setor teve seus sistemas comprometidos por um sofisticado ataque de ransomware.',
-            'url' => 'https://canaltech.com.br/seguranca/',
-            'source' => 'Canaltech'
-        ],
-        [
-            'title' => 'Dicas para proteger suas senhas online',
-            'image' => 'https://images.unsplash.com/photo-1528901166007-3784c7dd3653?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Especialistas compartilham as melhores práticas para manter suas credenciais seguras no ambiente digital.',
-            'url' => 'https://gizmodo.uol.com.br/categoria/seguranca/',
-            'source' => 'Gizmodo Brasil'
-        ],
-        [
-            'title' => 'Nova técnica de phishing atinge usuários bancários',
-            'image' => 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Criminosos estão usando métodos avançados para enganar clientes de bancos e roubar dados financeiros.',
-            'url' => 'https://www.tecmundo.com.br/seguranca',
-            'source' => 'TecMundo'
-        ],
-        [
-            'title' => 'Governo anuncia nova estratégia nacional de cibersegurança',
-            'image' => 'https://images.unsplash.com/photo-1551808525-51a94da548ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Plano inclui investimentos bilionários para proteger infraestruturas críticas de ataques cibernéticos.',
-            'url' => 'https://canaltech.com.br/seguranca/',
-            'source' => 'Canaltech'
-        ],
-        [
-            'title' => 'Como configurar autenticação de dois fatores',
-            'image' => 'https://images.unsplash.com/photo-1569012871812-f38ee64cd54c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Guia passo a passo para ativar esta importante camada de segurança em suas contas mais importantes.',
-            'url' => 'https://gizmodo.uol.com.br/categoria/seguranca/',
-            'source' => 'Gizmodo Brasil'
-        ],
-        [
-            'title' => 'Vazamento de dados expõe informações de milhões de usuários',
-            'image' => 'https://images.unsplash.com/photo-1614064642553-f86c30fe08fe?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Empresa de e-commerce sofre violação massiva que compromete dados pessoais e financeiros.',
-            'url' => 'https://www.tecmundo.com.br/seguranca',
-            'source' => 'TecMundo'
-        ],
-        [
-            'title' => 'Inteligência Artificial está revolucionando a cibersegurança',
-            'image' => 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Novas soluções baseadas em IA detectam ameaças com mais eficiência e antecipam movimentos de hackers.',
-            'url' => 'https://canaltech.com.br/seguranca/',
-            'source' => 'Canaltech'
-        ],
-        [
-            'title' => 'NFTs são o novo alvo de hackers: saiba como se proteger',
-            'image' => 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Colecionadores de tokens não fungíveis estão sendo vítimas de golpes sofisticados. Especialistas recomendam cautela.',
-            'url' => 'https://tecnoblog.net/categoria/seguranca/',
-            'source' => 'Tecnoblog'
-        ],
-        [
-            'title' => 'Estudo revela aumento de 300% em ataques de dia zero',
-            'image' => 'https://images.unsplash.com/photo-1504639725590-34d0984388bd?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Vulnerabilidades desconhecidas estão sendo exploradas em ritmo alarmante, com empresas lutando para se proteger.',
-            'url' => 'https://www.cnnbrasil.com.br/tudo-sobre/ciberseguranca/',
-            'source' => 'CNN Brasil'
-        ],
-        [
-            'title' => 'Empresas brasileiras investem recorde em segurança cibernética',
-            'image' => 'https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Companhias aumentam orçamentos de TI após série de ataques de alto perfil no país. LGPD acelera conscientização.',
-            'url' => 'https://forbes.com.br/tag/ciberseguranca/',
-            'source' => 'Forbes Brasil'
-        ],
-        [
-            'title' => 'Mercado financeiro é o setor mais visado por cibercriminosos',
-            'image' => 'https://images.unsplash.com/photo-1607962837359-5e7e89f86776?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Bancos e corretoras enfrentam ondas de ataques coordenados. Hackers buscam dados financeiros e credenciais para fraudes.',
-            'url' => 'https://www.infomoney.com.br/tema/ciberseguranca/',
-            'source' => 'InfoMoney'
-        ],
-        [
-            'title' => 'Hackers russos atacam infraestrutura crítica de países europeus',
-            'image' => 'https://images.unsplash.com/photo-1614064548237-096d7a4af960?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Grupo APT29, ligado a serviços de inteligência, tem como alvo sistemas energéticos e de distribuição de água.',
-            'url' => 'https://www.bloomberglinea.com.br/tag/ciberataques/',
-            'source' => 'Bloomberg Línea'
-        ],
-        [
-            'title' => 'CISOs relatam burnout em meio a crescentes ameaças cibernéticas',
-            'image' => 'https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Executivos de segurança enfrentam pressão intensa, longas jornadas e esforço constante para manter empresas seguras.',
-            'url' => 'https://ciso.com.br/',
-            'source' => 'CISO Advisor'
-        ],
-        [
-            'title' => 'Novo padrão global para segurança em IoT é anunciado',
-            'image' => 'https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Certificação promete reduzir vulnerabilidades em dispositivos conectados, agora alvos frequentes de ciberataques.',
-            'url' => 'https://boletimsec.com.br/',
-            'source' => 'BoletimSec'
-        ],
-        [
-            'title' => '5 medidas essenciais para proteger pequenas empresas de ransomware',
-            'image' => 'https://images.unsplash.com/photo-1535191042502-e6a9a3d407e7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            'description' => 'Especialistas recomendam backups regulares, atualizações de sistema e treinamento de funcionários para mitigar riscos.',
-            'url' => 'https://minutodaseguranca.blog.br/',
-            'source' => 'Minuto da Segurança'
-        ]
-    ];
-}
-
-/**
- * Função para resolver URLs relativos para absolutos
+ * FunÃ§Ã£o para resolver URLs relativos para absolutos
  */
 function resolveRelativeUrlBase($baseUrl, $relativeUrl) {
-    // Se o URL já for absoluto, retorna ele mesmo
+    // Se o URL jÃ¡ for absoluto, retorna ele mesmo
     if (filter_var($relativeUrl, FILTER_VALIDATE_URL)) {
         return $relativeUrl;
     }
     
-    // Se o URL relativo começar com //, é um URL protocolo-relativo
+    // Se o URL relativo comeÃ§ar com //, Ã© um URL protocolo-relativo
     if (substr($relativeUrl, 0, 2) === '//') {
         // Extrai o protocolo do URL base e o usa
         $parsedBase = parse_url($baseUrl);
@@ -523,14 +484,14 @@ function resolveRelativeUrlBase($baseUrl, $relativeUrl) {
         return $protocol . ':' . $relativeUrl;
     }
     
-    // Se o URL relativo começar com /, é relativo à raiz do domínio
+    // Se o URL relativo comeÃ§ar com /, Ã© relativo Ã  raiz do domÃ­nio
     if (substr($relativeUrl, 0, 1) === '/') {
         $parsedBase = parse_url($baseUrl);
         $baseRoot = $parsedBase['scheme'] . '://' . $parsedBase['host'];
         return $baseRoot . $relativeUrl;
     }
     
-    // Para outros URLs relativos, resolve em relação ao URL base
+    // Para outros URLs relativos, resolve em relaÃ§Ã£o ao URL base
     $basePathParts = explode('/', rtrim(dirname($baseUrl), '/'));
     $relativePathParts = explode('/', $relativeUrl);
     
@@ -546,16 +507,17 @@ function resolveRelativeUrlBase($baseUrl, $relativeUrl) {
 }
 
 /**
- * Extrai uma URL válida de imagem a partir de elementos HTML
- * Versão melhorada para priorizar imagens reais dos artigos
+ * Extrai uma URL vÃ¡lida de imagem a partir de elementos HTML
+ * VersÃ£o melhorada para priorizar imagens reais dos artigos
  */
 function extractValidImageUrl($element, $baseUrl) {
-    // Fallback para quando o elemento não é encontrado
+    // Fallback para quando o elemento nÃ£o Ã© encontrado
     if (empty($element)) {
+        // Retornar string vazia em vez de URL para fallback
         return '';
     }
     
-    // Lista de possíveis atributos que podem conter URLs de imagem
+    // Lista de possÃ­veis atributos que podem conter URLs de imagem
     $imgAttributes = ['src', 'data-src', 'data-lazy-src', 'data-original', 'data-srcset', 'srcset', 
                      'data-original-src', 'data-lazy-loaded', 'data-img-url', 'data-full-src', 
                      'data-large-file', 'data-medium-file', 'loading-src', 'data-hi-res-src'];
@@ -565,7 +527,7 @@ function extractValidImageUrl($element, $baseUrl) {
                         'thumbnail', 'wp-post-image', 'attachment-large', 'hero-image'];
     $imgTags = $element->getElementsByTagName('img');
     
-    // Primeiro tenta imagens com classes específicas de imagens principais
+    // Primeiro tenta imagens com classes especÃ­ficas de imagens principais
     foreach ($imgTags as $img) {
         if ($img->hasAttribute('class')) {
             $class = $img->getAttribute('class');
@@ -583,7 +545,7 @@ function extractValidImageUrl($element, $baseUrl) {
                             // Resolve URL relativa para absoluta
                             $imgUrl = resolveRelativeUrlBase($baseUrl, $imgUrl);
                             
-                            // Verifica se é uma URL válida e se é uma imagem
+                            // Verifica se Ã© uma URL vÃ¡lida e se Ã© uma imagem
                             if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
                                 return $imgUrl;
                             }
@@ -611,13 +573,13 @@ function extractValidImageUrl($element, $baseUrl) {
                 // Resolve URL relativa para absoluta
                 $imgUrl = resolveRelativeUrlBase($baseUrl, $imgUrl);
                 
-                // Verifica se é uma URL válida e se é uma imagem de tamanho adequado
+                // Verifica se Ã© uma URL vÃ¡lida e se Ã© uma imagem de tamanho adequado
                 if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
-                    // Tenta obter as dimensões da imagem dos atributos
+                    // Tenta obter as dimensÃµes da imagem dos atributos
                     $width = $img->hasAttribute('width') ? intval($img->getAttribute('width')) : 0;
                     $height = $img->hasAttribute('height') ? intval($img->getAttribute('height')) : 0;
                     
-                    // Se as dimensões estão disponíveis, calcula a área
+                    // Se as dimensÃµes estÃ£o disponÃ­veis, calcula a Ã¡rea
                     if ($width > 0 && $height > 0) {
                         $area = $width * $height;
                         if ($area > $largestArea) {
@@ -625,7 +587,7 @@ function extractValidImageUrl($element, $baseUrl) {
                             $bestImageUrl = $imgUrl;
                         }
                     } 
-                    // Se não temos as dimensões, mas ainda não encontramos nenhuma imagem
+                    // Se nÃ£o temos as dimensÃµes, mas ainda nÃ£o encontramos nenhuma imagem
                     else if (empty($bestImageUrl)) {
                         $bestImageUrl = $imgUrl;
                     }
@@ -636,6 +598,10 @@ function extractValidImageUrl($element, $baseUrl) {
     
     // Se encontramos uma imagem boa, retorna ela
     if (!empty($bestImageUrl)) {
+        // Verificar se a URL retornada contÃ©m caracteres invÃ¡lidos ou Ã© do Unsplash
+        if (strpos($bestImageUrl, '@') !== false || strpos($bestImageUrl, 'unsplash.com') !== false) {
+            return '';
+        }
         return $bestImageUrl;
     }
     
@@ -670,7 +636,7 @@ function extractValidImageUrl($element, $baseUrl) {
                 // Resolve URL relativa para absoluta
                 $imgUrl = resolveRelativeUrlBase($baseUrl, $imgUrl);
                 
-                // Verifica se é uma URL válida e se é uma imagem
+                // Verifica se Ã© uma URL vÃ¡lida e se Ã© uma imagem
                 if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
                     return $imgUrl;
                 }
@@ -689,7 +655,7 @@ function extractValidImageUrl($element, $baseUrl) {
                 // Resolve URL relativa para absoluta
                 $imgUrl = resolveRelativeUrlBase($baseUrl, $imgUrl);
                 
-                // Verifica se é uma URL válida e se é uma imagem
+                // Verifica se Ã© uma URL vÃ¡lida e se Ã© uma imagem
                 if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
                     return $imgUrl;
                 }
@@ -697,55 +663,7 @@ function extractValidImageUrl($element, $baseUrl) {
         }
     }
     
-    // Tenta encontrar uma tag <a> com uma imagem (caso o artigo seja apenas um link)
-    $links = $element->getElementsByTagName('a');
-    foreach ($links as $link) {
-        if ($link->hasAttribute('href') && preg_match('/\.(jpe?g|png|gif|webp)$/i', $link->getAttribute('href'))) {
-            $imgUrl = $link->getAttribute('href');
-            
-            // Resolve URL relativa para absoluta
-            $imgUrl = resolveRelativeUrlBase($baseUrl, $imgUrl);
-            
-            // Verifica se é uma URL válida e se é uma imagem
-            if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
-                return $imgUrl;
-            }
-        }
-    }
-    
-    // Última tentativa - procura qualquer elemento com background-image
-    $allElements = $element->getElementsByTagName('*');
-    foreach ($allElements as $el) {
-        if ($el->hasAttribute('style')) {
-            $style = $el->getAttribute('style');
-            if (preg_match('/background(-image)?\s*:\s*url\([\'"]?([^\'"]*)[\'"]?\)/i', $style, $matches)) {
-                $imgUrl = $matches[2];
-                
-                // Resolve URL relativa para absoluta
-                $imgUrl = resolveRelativeUrlBase($baseUrl, $imgUrl);
-                
-                // Verifica se é uma URL válida e se é uma imagem
-                if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
-                    return $imgUrl;
-                }
-            }
-        }
-    }
-    
-    // Tenta puxar qualquer imagem do documento inteiro como último recurso
-    $docImgTags = $element->ownerDocument->getElementsByTagName('img');
-    foreach ($docImgTags as $img) {
-        if ($img->hasAttribute('src')) {
-            $imgUrl = $img->getAttribute('src');
-            $imgUrl = resolveRelativeUrlBase($baseUrl, $imgUrl);
-            
-            if (isValidImageUrl($imgUrl) && !isSmallOrIconImage($imgUrl)) {
-                return $imgUrl;
-            }
-        }
-    }
-    
-    // Nenhuma imagem encontrada
+    // Se nenhuma imagem foi encontrada, retorna string vazia
     return '';
 }
 
@@ -768,7 +686,7 @@ function extractLargestFromSrcset($srcset) {
                 $largestUrl = $url;
             }
         } else if (empty($largestUrl)) {
-            // Se não tem tamanho definido, pega a primeira URL
+            // Se nÃ£o tem tamanho definido, pega a primeira URL
             $largestUrl = preg_replace('/\s+\d+[wx].*$/', '', $part);
         }
     }
@@ -777,56 +695,93 @@ function extractLargestFromSrcset($srcset) {
 }
 
 /**
- * Verifica se é uma imagem pequena ou ícone
+ * Verifica se Ã© uma imagem pequena, Ã­cone, logo ou imagem inadequada
  */
 function isSmallOrIconImage($url) {
-    // Verifica se a URL contém indicações de que é um ícone
-    if (preg_match('/icon|logo|avatar|favicon|thumb(\-|\.|_)?(small|tiny|min)|badge|button|banner|social|widget|gravatar|20x20|24x24|32x32|48x48|64x64/i', $url)) {
+    // Verifica se a URL contÃ©m indicaÃ§Ãµes de que Ã© um Ã­cone ou logo
+    if (preg_match('/icon|logo|avatar|favicon|thumb(\-|\.|_)?(small|tiny|min)|badge|button|banner|social|widget|gravatar|footer|header|nav|menu|sprite/i', $url)) {
         return true;
     }
     
-    // Verifica se tem dimensão no nome e se é pequena
+    // Verifica se contÃ©m palavras que indicam imagens de interface ou nÃ£o relacionadas a notÃ­cias
+    if (preg_match('/template|theme|layout|interface|ui\-|ui\_|placeholder|empty|blank|default|promotion|ad\-|ad\_/i', $url)) {
+        return true;
+    }
+    
+    // Verifica dimensÃµes especÃ­ficas de Ã­cones comuns
+    if (preg_match('/16x16|24x24|32x32|48x48|64x64|72x72|96x96|128x128/i', $url)) {
+        return true;
+    }
+    
+    // Verifica se tem dimensÃ£o no nome e se Ã© pequena
     if (preg_match('/(\-|\.|_)(\d+x\d+|w\d+|h\d+|size\d+)/i', $url)) {
         if (preg_match('/(\-|\.|_)(\d+)x(\d+)/i', $url, $matches)) {
             $width = intval($matches[2]);
             $height = intval($matches[3]);
-            // Imagens menores que 300px são consideradas pequenas
-            if ($width < 300 || $height < 300) {
+            // Imagens menores que 400px (aumentado de 300px) sÃ£o consideradas pequenas
+            if ($width < 400 || $height < 400) {
                 return true;
             }
         }
+    }
+    
+    // Verifica se Ã© um SVG (frequentemente usado para Ã­cones e logos)
+    if (preg_match('/\.svg(\?.*)?$/i', $url)) {
+        return true;
     }
     
     return false;
 }
 
 /**
- * Verifica se uma URL é uma imagem válida
+ * Verifica se uma URL Ã© uma imagem vÃ¡lida
  */
 function isValidImageUrl($url) {
-    // Remove whitespace e verifica se é vazia
+    // Remove whitespace e verifica se Ã© vazia
     $url = trim($url);
     if (empty($url)) {
         return false;
     }
     
-    // Verifica se a URL tem extensão de imagem comum
-    if (preg_match('/\.(jpe?g|png|gif|webp|svg|avif)(\?.*)?$/i', $url)) {
-        return true;
-    }
-    
-    // Verifica se não é um ícone ou outra imagem pequena
-    if (preg_match('/icon|logo|avatar|favicon|thumb(\-|\.|_)?(small|tiny|min)/i', $url)) {
+    // Verifica se a URL contÃ©m @ (sÃ­mbolo que indica URL mal formada)
+    if (strpos($url, '@') !== false) {
         return false;
     }
     
-    // Verifica tamanho dos arquivos se tiver dimensão no nome do arquivo (comum em CDNs)
+    // Verifica se a URL contÃ©m referÃªncia ao Unsplash (que nÃ£o estÃ¡ carregando)
+    if (strpos($url, 'unsplash.com') !== false) {
+        return false;
+    }
+    
+    // Lista de extensÃµes indesejadas que normalmente nÃ£o sÃ£o imagens de artigos
+    $badExtensions = ['ico', 'svg', 'gif', 'webp'];
+    foreach ($badExtensions as $ext) {
+        if (preg_match('/\.' . $ext . '(\?.*)?$/i', $url)) {
+            return false;
+        }
+    }
+    
+    // Verifica se a URL tem extensÃ£o de imagem comum
+    if (preg_match('/\.(jpe?g|png)(\?.*)?$/i', $url)) {
+        // VerificaÃ§Ãµes adicionais para evitar imagens indesejadas
+        if (isSmallOrIconImage($url)) {
+            return false;
+        }
+        return true;
+    }
+    
+    // Rejeita URLs que parecem ser Ã­cones ou imagens de interface
+    if (preg_match('/icon|logo|avatar|favicon|thumb(\-|\.|_)?(small|tiny|min)|badge|button|banner|social|widget|gravatar|empty|blank|default|nav|header|footer/i', $url)) {
+        return false;
+    }
+    
+    // Verifica tamanho dos arquivos se tiver dimensÃ£o no nome do arquivo (comum em CDNs)
     if (preg_match('/(\-|\.|_)(\d+x\d+|w\d+|h\d+|size\d+)/i', $url)) {
         if (preg_match('/(\-|\.|_)(\d+x\d+)/i', $url, $matches)) {
             $dimensions = explode('x', strtolower($matches[2]));
             if (count($dimensions) == 2) {
-                // Se a imagem for muito pequena (menos de 300px em qualquer dimensão), provavelmente não é uma imagem principal
-                if (intval($dimensions[0]) < 300 || intval($dimensions[1]) < 300) {
+                // Se a imagem for muito pequena (menos de 400px em qualquer dimensÃ£o), provavelmente nÃ£o Ã© uma imagem principal
+                if (intval($dimensions[0]) < 400 || intval($dimensions[1]) < 400) {
                     return false;
                 }
             }
@@ -839,19 +794,21 @@ function isValidImageUrl($url) {
         'wp-content/uploads', 'uploads', 'photos', 'pictures'
     ];
     
+    $isFromCDN = false;
     foreach ($knownImageCDNs as $cdn) {
         if (stripos($url, $cdn) !== false) {
-            return true;
+            $isFromCDN = true;
+            break;
         }
     }
     
-    // Se chegou até aqui, tenta verificar através do Content-Type
-    if (function_exists('curl_init')) {
+    // Se nÃ£o Ã© de um CDN conhecido, verifica atravÃ©s do Content-Type
+    if (!$isFromCDN && function_exists('curl_init')) {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_NOBODY, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 3); // Reduzido de 5 para 3 segundos
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $response = curl_exec($ch);
         
@@ -861,23 +818,62 @@ function isValidImageUrl($url) {
             // Extrai Content-Type do header
             if (preg_match('/Content-Type: (image\/[^\s;]+)/i', $response, $matches)) {
                 $contentType = $matches[1];
+                
+                // Especificamente queremos apenas imagens JPEG ou PNG
+                if (strpos($contentType, 'image/jpeg') === 0 || strpos($contentType, 'image/png') === 0) {
+                    curl_close($ch);
+                    return true;
+                }
             }
             
             curl_close($ch);
-            
-            if (!empty($contentType) && strpos($contentType, 'image/') === 0) {
-                return true;
-            }
+            return false;
         } else {
             curl_close($ch);
+            return false;
         }
     }
     
-    return false;
+    // Se Ã© de um CDN conhecido mas nÃ£o passou nas verificaÃ§Ãµes anteriores, retorna true
+    return $isFromCDN;
 }
 
 /**
- * Faz o scraping de um site específico
+ * Verifica se uma URL Ã© uma pÃ¡gina de notÃ­cia vÃ¡lida
+ */
+function isValidArticleUrl($url) {
+    // Verificar se a URL Ã© vazia
+    if (empty($url)) {
+        return false;
+    }
+    
+    // Lista de padrÃµes que indicam pÃ¡ginas que nÃ£o sÃ£o notÃ­cias
+    $badPatterns = [
+        'contato', 'contact', 'reportar-erro', 'report-error', 'error', 'erro',
+        'login', 'cadastro', 'register', 'password', 'senha', 'account', 'conta',
+        'admin', 'wp-admin', 'wp-login', 'painel', 'dashboard', 'perfil', 'profile',
+        'form', 'formulario', 'captcha', 'privacidade', 'privacy', 'terms', 'termos',
+        'politica', 'policy', 'cookies', 'lgpd', 'gdpr', 'subscribe', 'newsletter',
+        'assinatura', 'inscreva', 'ajuda', 'help', 'faq', 'suporte', 'support'
+    ];
+    
+    // Verifica se a URL contÃ©m algum dos padrÃµes indesejados
+    foreach ($badPatterns as $pattern) {
+        if (stripos($url, $pattern) !== false) {
+            return false;
+        }
+    }
+    
+    // Verifica se parece ser uma URL de pÃ¡gina interna ou administrativa
+    if (preg_match('/(\/wp-|\/admin|\/login|\/conta|\/form|\?pst=|\?post=|\?page=|\?p=)/i', $url)) {
+        return false;
+    }
+    
+    return true;
+}
+
+/**
+ * Faz o scraping de um site especÃ­fico
  */
 function scrapeWebsite($site) {
     $news = [];
@@ -898,7 +894,7 @@ function scrapeWebsite($site) {
     libxml_clear_errors();
 
     try {
-        // Tenta diferentes estratégias para encontrar artigos
+        // Tenta diferentes estratÃ©gias para encontrar artigos
         $articles = null;
         
         try {
@@ -912,12 +908,12 @@ function scrapeWebsite($site) {
                 $articles = $xpath->query("//article | //div[contains(@class, 'article')]");
             }
         } catch (Exception $e) {
-            // Se o seletor for inválido, tenta algo mais genérico
+            // Se o seletor for invÃ¡lido, tenta algo mais genÃ©rico
             $articles = null;
         }
         
         if (!$articles || $articles->length == 0) {
-            // Se não encontrou com o seletor específico, tenta algo mais genérico
+            // Se nÃ£o encontrou com o seletor especÃ­fico, tenta algo mais genÃ©rico
             $articles = $xpath->query("//div[contains(@class, 'article') or contains(@class, 'post') or contains(@class, 'card') or contains(@class, 'news')]");
         }
         
@@ -928,7 +924,7 @@ function scrapeWebsite($site) {
         for ($i = 0; $i < min($articles->length, 5); $i++) {
             $article = $articles->item($i);
             
-            // Busca título (tenta vários seletores)
+            // Busca tÃ­tulo (tenta vÃ¡rios seletores)
             $title = null;
             foreach (explode(', ', $site['title_selector']) as $selector) {
                 try {
@@ -949,7 +945,7 @@ function scrapeWebsite($site) {
                         break;
                     }
                 } catch (Exception $e) {
-                    // Se o seletor for inválido, continua para o próximo
+                    // Se o seletor for invÃ¡lido, continua para o prÃ³ximo
                     continue;
                 }
             }
@@ -993,12 +989,17 @@ function scrapeWebsite($site) {
             $titleText = $title->textContent;
             $linkUrl = $link->getAttribute('href');
             
-            // Verifica se a URL é relativa e adiciona o domínio
+            // Verifica se a URL Ã© relativa e adiciona o domÃ­nio
             if ($linkUrl && strpos($linkUrl, 'http') !== 0) {
                 $linkUrl = resolveRelativeUrlBase($site['url'], $linkUrl);
             }
             
-            // Obtém a imagem, primeiro tentando no artigo e depois no conteúdo da página linkada
+            // Verifica se a URL Ã© vÃ¡lida para uma notÃ­cia
+            if (!isValidArticleUrl($linkUrl)) {
+                continue;
+            }
+            
+            // ObtÃ©m a imagem, primeiro tentando no artigo e depois no conteÃºdo da pÃ¡gina linkada
             $imageUrl = '';
             
             // 1. Primeiro tenta extrair do elemento do artigo na lista
@@ -1014,7 +1015,7 @@ function scrapeWebsite($site) {
                 }
             }
             
-            // 2. Se não encontrou imagem, procura em padrões comuns dentro do artigo
+            // 2. Se nÃ£o encontrou imagem, procura em padrÃµes comuns dentro do artigo
             if (empty($imageUrl)) {
                 // Tenta encontrar imagens dentro do artigo
                 $imgTags = $xpath->query('.//img', $article);
@@ -1045,7 +1046,7 @@ function scrapeWebsite($site) {
                 }
             }
             
-            // 3. Se ainda não encontramos uma imagem e temos o URL do artigo, tenta buscar diretamente no artigo
+            // 3. Se ainda nÃ£o encontramos uma imagem e temos o URL do artigo, tenta buscar diretamente no artigo
             if (empty($imageUrl) && !empty($linkUrl)) {
                 // Tentativa de carregar o artigo completo para encontrar a imagem
                     $articleHtml = getWebsiteContent($linkUrl);
@@ -1070,7 +1071,7 @@ function scrapeWebsite($site) {
                                     }
                                 }
                                 
-                    // Se ainda não encontrou, procura a maior imagem no artigo
+                    // Se ainda nÃ£o encontrou, procura a maior imagem no artigo
                                 if (empty($imageUrl)) {
                         $articleImg = extractValidImageUrl($articleDom, $linkUrl);
                         if (!empty($articleImg)) {
@@ -1080,39 +1081,43 @@ function scrapeWebsite($site) {
                 }
             }
             
-            // Se mesmo após todas as tentativas não encontramos uma imagem válida,
-            // deixamos vazio em vez de usar uma imagem padrão
+            // Se mesmo apÃ³s todas as tentativas nÃ£o encontramos uma imagem vÃ¡lida,
+            // geramos uma imagem dinÃ¢mica do sistema
+            if (empty($imageUrl) || strpos($imageUrl, '@') !== false || strpos($imageUrl, 'unsplash.com') !== false) {
+                // Pular esta notÃ­cia ao invÃ©s de usar fallback
+                continue;
+            }
             
-            // Busca descrição
+            // Busca descriÃ§Ã£o
             $descriptionText = "";
             
-            // Usa o título como base para a descrição
+            // Usa o tÃ­tulo como base para a descriÃ§Ã£o
             if (!empty($titleText)) {
-                // Se o título for curto, usa ele como está
+                // Se o tÃ­tulo for curto, usa ele como estÃ¡
                 if (strlen($titleText) < 100) {
                     $descriptionText = "Saiba mais sobre: " . $titleText;
                 } else {
-                    // Se for longo, corta para evitar duplicação
-                    $descriptionText = "Leia a matéria completa sobre " . substr($titleText, 0, 70) . "...";
+                    // Se for longo, corta para evitar duplicaÃ§Ã£o
+                    $descriptionText = "Leia a matÃ©ria completa sobre " . substr($titleText, 0, 70) . "...";
                 }
             } else {
-                $descriptionText = "Confira esta notícia sobre segurança cibernética no site original.";
+                $descriptionText = "Confira esta notÃ­cia sobre seguranÃ§a cibernÃ©tica no site original.";
             }
             
-            // Limpa o texto removendo espaços extras
+            // Limpa o texto removendo espaÃ§os extras
             $titleText = trim(preg_replace('/\s+/', ' ', $titleText));
             
-            // Limita a descrição a 150 caracteres
+            // Limita a descriÃ§Ã£o a 150 caracteres
             if (strlen($descriptionText) > 150) {
                 $descriptionText = substr($descriptionText, 0, 147) . '...';
             }
             
-            // Verifica se é site internacional (em inglês) baseado no domínio
+            // Verifica se Ã© site internacional (em inglÃªs) baseado no domÃ­nio
             $isEnglish = !preg_match('/(\.br|\.com\.br)/i', $site['url']);
             
-            // Para sites em inglês, adiciona indicador no início da descrição
+            // Para sites em inglÃªs, adiciona indicador no inÃ­cio da descriÃ§Ã£o
             if ($isEnglish) {
-                $descriptionText = "[Conteúdo em inglês] " . $descriptionText;
+                $descriptionText = "[ConteÃºdo em inglÃªs] " . $descriptionText;
             }
             
             $news[] = [
@@ -1133,34 +1138,34 @@ function scrapeWebsite($site) {
 }
 
 /**
- * Obtém o conteúdo HTML de um site usando cURL
- * Inclui sistema de cache para não sobrecarregar os sites
+ * ObtÃ©m o conteÃºdo HTML de um site usando cURL
+ * Inclui sistema de cache para nÃ£o sobrecarregar os sites
  */
 function getWebsiteContent($url) {
-    // Verifica se existe cache e se não está expirado (estendido para 6 horas)
+    // Verifica se existe cache e se nÃ£o estÃ¡ expirado (estendido para 6 horas)
     $cacheFile = 'cache/' . md5($url) . '.html';
     $cacheTime = 21600; // 6 horas (aumentado de 2 para 6 horas)
     
-    // Cria diretório de cache se não existir
+    // Cria diretÃ³rio de cache se nÃ£o existir
     if (!file_exists('cache')) {
         mkdir('cache', 0777, true);
     }
     
-    // Verifica se o cache existe e está válido
+    // Verifica se o cache existe e estÃ¡ vÃ¡lido
     if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheTime)) {
         return file_get_contents($cacheFile);
     }
     
-    // Para requisições AJAX, priorize a velocidade e use cache mesmo se expirado
+    // Para requisiÃ§Ãµes AJAX, priorize a velocidade e use cache mesmo se expirado
     if (isset($_GET['load_more']) && file_exists($cacheFile)) {
-        // Atualiza a data do arquivo para estender sua vida útil
+        // Atualiza a data do arquivo para estender sua vida Ãºtil
         touch($cacheFile);
-        // Agenda uma atualização assíncrona para depois
+        // Agenda uma atualizaÃ§Ã£o assÃ­ncrona para depois
         touch('cache/update_needed.flag');
         return file_get_contents($cacheFile);
     }
     
-    // Caso contrário, faz a requisição
+    // Caso contrÃ¡rio, faz a requisiÃ§Ã£o
     $ch = curl_init();
     
     // Configura o cURL
@@ -1170,9 +1175,9 @@ function getWebsiteContent($url) {
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
     curl_setopt($ch, CURLOPT_TIMEOUT, 5); // Reduzido de 10 para 5 segundos
-    curl_setopt($ch, CURLOPT_ENCODING, ''); // Aceita codificação gzip
+    curl_setopt($ch, CURLOPT_ENCODING, ''); // Aceita codificaÃ§Ã£o gzip
     
-    // Adiciona um delay reduzido para não sobrecarregar os sites
+    // Adiciona um delay reduzido para nÃ£o sobrecarregar os sites
     usleep(rand(100000, 300000)); // 0.1 a 0.3 segundos (reduzido de 0.5-1.5s)
     
     $html = curl_exec($ch);
@@ -1185,90 +1190,66 @@ function getWebsiteContent($url) {
         file_put_contents($cacheFile, $html);
         return $html;
     } else if (file_exists($cacheFile)) {
-        // Se a requisição falhou mas existe cache, usa o cache mesmo que expirado
+        // Se a requisiÃ§Ã£o falhou mas existe cache, usa o cache mesmo que expirado
         return file_get_contents($cacheFile);
     }
     
     return false;
 }
 
-// Adicionar API endpoint para carregar mais notícias
+// Handling AJAX requests for more news
 if (isset($_GET['load_more'])) {
-    // Definir tempos limite de execução mais generosos para scraping inicial
-    set_time_limit(60); // 60 segundos para executar
+    // Get requested page and items per page (default to 30 items)
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $itemsPerPage = isset($_GET['items']) ? (int)$_GET['items'] : 30;
     
-    // Usar cache de notícias para carregamento mais rápido
-    $cacheFile = 'cache/news_cache_' . $_GET['lang'] . '_' . $_GET['page'] . '.json';
-    $cacheTime = 3600; // 1 hora
+    // Apply limits to avoid excessive processing
+    $itemsPerPage = min(max($itemsPerPage, 10), 50); // Between 10 and 50 items
     
-    // Verifica se o cache existe e está válido
-    if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheTime)) {
-        // Retorna diretamente do cache
-    header('Content-Type: application/json');
-        header('X-Cache: HIT');
-        echo file_get_contents($cacheFile);
-        exit;
-    }
-    
-    // Determinar página e número de itens
-    $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
-    $itemsPerPage = isset($_GET['items']) ? intval($_GET['items']) : 16;
-    $lang = isset($_GET['lang']) ? $_GET['lang'] : 'all';
-    
-    // Validar parâmetros
-    if ($page < 1) $page = 1;
-    if ($itemsPerPage < 1 || $itemsPerPage > 50) $itemsPerPage = 16;
-    
-    // Obter todas as notícias (talvez precisemos limitar isso no futuro para performance)
+    // Get news
     $allNewsFromScrapers = getAllNews();
     
-    // Filtrar por idioma se necessário
-    $filteredNews = $allNewsFromScrapers;
-    if ($lang !== 'all') {
-        $filteredNews = array_filter($allNewsFromScrapers, function($news) use ($lang) {
-            return isset($news['language']) && $news['language'] === $lang;
+    // Filter by language if requested
+    $requestedLang = isset($_GET['lang']) ? strtolower($_GET['lang']) : 'all';
+    if ($requestedLang != 'all') {
+        $allNewsFromScrapers = array_filter($allNewsFromScrapers, function($item) use ($requestedLang) {
+            return isset($item['language']) && strtolower($item['language']) == $requestedLang;
         });
-        
-        // Reordenar os índices
-        $filteredNews = array_values($filteredNews);
+        // Re-index array
+        $allNewsFromScrapers = array_values($allNewsFromScrapers);
     }
     
-    // Calcular índices para paginação
-    $totalItems = count($filteredNews);
-    $offset = ($page - 1) * $itemsPerPage;
+    // Get subset based on pagination
+    $totalItems = count($allNewsFromScrapers);
+    $maxPages = ceil($totalItems / $itemsPerPage);
     
-    // Verificar se ainda há mais itens após esta página
-    $hasMore = ($offset + $itemsPerPage) < $totalItems;
+    // Ensure page doesn't exceed the maximum, and handle empty pages
+    if ($maxPages == 0) $maxPages = 1;
+    $page = min(max($page, 1), $maxPages);
     
-    // Obter os itens para esta página
-    $newsItems = array_slice($filteredNews, $offset, $itemsPerPage);
+    // Calculate subset of news to return
+    $startIndex = ($page - 1) * $itemsPerPage;
+    $endIndex = min($startIndex + $itemsPerPage, $totalItems);
     
-    // Garantir que os índices comecem em 0
-    $newsItems = array_values($newsItems);
+    // If we're at the last page, circle back to the beginning with some randomness
+    if ($startIndex >= $totalItems) {
+        // Shuffle news when we've gone through all of them
+        shuffle($allNewsFromScrapers);
+        $startIndex = 0;
+        $endIndex = min($itemsPerPage, $totalItems);
+    }
     
-    // Preparar resposta
-    $response = [
-        'news' => $newsItems,
-        'hasMore' => $hasMore,
-        'currentPage' => $page,
-        'totalPages' => ceil($totalItems / $itemsPerPage),
+    // Get slice of news
+    $newsSlice = array_slice($allNewsFromScrapers, $startIndex, $endIndex - $startIndex);
+    
+    // Return as JSON
+    header('Content-Type: application/json');
+    echo json_encode([
+        'page' => $page,
+        'maxPages' => $maxPages,
         'totalItems' => $totalItems,
         'itemsPerPage' => $itemsPerPage,
-        'remaining' => max(0, $totalItems - ($offset + $itemsPerPage)),
-        'lang' => $lang,
-        'cached' => false,
-        'timestamp' => time()
-    ];
-    
-    // Salvar em cache para futuras requisições
-    file_put_contents($cacheFile, json_encode($response));
-    
-    // Retornar como JSON
-    header('Content-Type: application/json');
-    header('X-Cache: MISS');
-    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-    header('Cache-Control: post-check=0, pre-check=0', false);
-    header('Pragma: no-cache');
-    echo json_encode($response);
+        'news' => $newsSlice
+    ]);
     exit;
 }

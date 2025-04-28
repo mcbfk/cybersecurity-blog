@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function() {
             leaf.innerHTML = '<svg width="'+ size +'" height="'+ size +'" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50 10C45 20 40 25 35 30C30 35 20 40 15 42C10 45 5 47 5 50C5 53 10 55 15 58C20 60 30 65 35 70C40 75 45 80 50 90C55 80 60 75 65 70C70 65 80 60 85 58C90 55 95 53 95 50C95 47 90 45 85 42C80 40 70 35 65 30C60 25 55 20 50 10Z" fill="#5cdb5c"/><path d="M50 10L50 90" stroke="#5cdb5c" stroke-width="2"/><path d="M25 40L75 60M25 60L75 40" stroke="#5cdb5c" stroke-width="1.5"/><path d="M15 50L85 50" stroke="#5cdb5c" stroke-width="1.5"/><path d="M30 30C40 40 60 40 70 30" stroke="#5cdb5c" stroke-width="1.5"/><path d="M30 70C40 60 60 60 70 70" stroke="#5cdb5c" stroke-width="1.5"/></svg>';
         } else {
             // Terceiro estilo - folha mais simples e elegante
-            leaf.innerHTML = '<svg width="'+ size +'" height="'+ size +'" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50 5C45 15 40 25 35 35C30 45 25 50 20 55C15 60 10 55 10 50C10 45 15 40 20 35C25 30 35 25 35 25C35 25 30 35 25 45C20 55 15 65 15 65C20 60 25 55 30 50C35 45 45 35 45 35C45 35 40 45 35 55C30 65 25 75 30 80C35 85 40 80 45 75C50 70 55 65 55 65C55 65 50 75 50 85C50 95 50 95 50 95C50 95 50 95 50 85C50 75 45 65 45 65C45 65 50 70 55 75C60 80 65 85 70 80C75 75 70 65 65 55C60 45 55 35 55 35C55 35 65 45 70 50C75 55 80 60 85 65C85 65 80 55 75 45C70 35 65 25 65 25C65 25 75 30 80 35C85 40 90 45 90 50C90 55 85 60 80 55C75 50 70 45 65 35C60 25 55 15 50 5Z" fill="#5cdb5c"/></svg>';
+            leaf.innerHTML = '<svg width="'+ size +'" height="'+ size +'" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50,5 C45,15 40,25 35,35 C30,45 25,50 20,55 C15,60 10,55 10,50 C10,45 15,40 20,35 C25,30 35,25 35,25 C35,25 30,35 25,45 C20,55 15,65 15,65 C20,60 25,55 30,50 C35,45 45,35 45,35 C45,35 40,45 35,55 C30,65 25,75 30,80 C35,85 40,80 45,75 C50,70 55,65 55,65 C55,65 50,75 50,85 C50,95 50,95 50,95 C50,95 50,95 50,85 C50,75 45,65 45,65 C45,65 50,70 55,75 C60,80 65,85 70,80 C75,75 70,65 65,55 C60,45 55,35 55,35 C55,35 65,45 70,50 C75,55 80,60 85,65 C85,65 80,55 75,45 C70,35 65,25 65,25 C65,25 75,30 80,35 C85,40 90,45 90,50 C90,55 85,60 80,55 C75,50 70,45 65,35 C60,25 55,15 50,5 Z" fill="#5cdb5c"/></svg>';
         }
         
         // Posicionamento mais variado na tela
@@ -400,27 +400,19 @@ document.addEventListener('DOMContentLoaded', function() {
         return title.toLowerCase().trim().replace(/\s+/g, ' ');
     }
 
-    // Adicionar listener para o botão "Carregar mais"
-    const loadMoreBtn = document.getElementById('load-more-btn');
-    if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', () => {
-            if (!isLoading && hasMore) {
-                loadMoreNews();
-            }
-        });
-    }
-    
-    // Atualizar o estado do botão quando mudar o status de carregamento
-    function updateButtonState() {
-        if (loadMoreBtn) {
+    // Função para atualizar o estado de carregamento (sem referência ao botão)
+    function updateLoadingState() {
             if (isLoading) {
-                // Esconde o botão durante o carregamento em vez de mostrar "Carregando..."
-                loadMoreBtn.style.display = 'none';
+            if (loadingIndicator) loadingIndicator.style.display = 'block';
             } else {
-                loadMoreBtn.textContent = 'Carregar mais notícias';
-                loadMoreBtn.disabled = false;
-                loadMoreBtn.classList.remove('disabled');
-                loadMoreBtn.style.display = 'inline-block';
+            // Usando timeout para prevenir a indicação de loading de aparecer e desaparecer muito rápido
+            if (loadingIndicator) {
+                setTimeout(() => {
+                    // Verificar novamente se ainda não está carregando antes de esconder
+                    if (!isLoading) {
+                        loadingIndicator.style.display = 'none';
+                    }
+                }, 300); // Pequeno delay para evitar o efeito de piscar
             }
         }
     }
@@ -540,8 +532,7 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollTimer = setTimeout(() => {
             // Carregar mais notícias quando o usuário estiver a 1500px do final da página
             // Aumentado para garantir carregamento bem antecipado
-            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1500 && !isLoading) {
-                hasMore = true; // Sempre verdadeiro
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1500 && !isLoading && hasMore) {
                 loadMoreNews();
                 
                 // Já inicia preload da próxima página
@@ -560,7 +551,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             scrollTimer = null;
-        }, 150); // Reduzido para resposta mais rápida
+        }, 250); // Aumentado para reduzir a frequência de verificações durante scroll
     });
 
     // Função para pré-carregar a próxima página
@@ -614,43 +605,72 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Função para mesclar notícias de várias fontes para nunca acabar
     function getMoreSources() {
-        // Criar notícias sintéticas se estiver faltando conteúdo
-        // Isso garante que nunca ficaremos sem conteúdo
-        const baseSources = [
-            'TecMundo', 'Canaltech', 'Olhar Digital', 'G1 Tecnologia', 
-            'The Hacker News', 'Krebs on Security', 'TechCrunch', 'ZDNet',
-            'DarkReading', 'Threat Post', 'SecurityWeek', 'CSO Online'
-        ];
-        
-        const baseTopics = [
-            'Falha de segurança', 'Vulnerabilidade descoberta', 'Novo malware', 
-            'Ataque cibernético', 'Vazamento de dados', 'Ransomware', 
-            'Phishing avançado', 'Zero-day', 'Autenticação de dois fatores',
-            'Criptografia', 'Proteção de dados', 'Privacidade online'
-        ];
-        
-        // Gerar 15 notícias sintéticas com combinações variadas
+        // Gerar URLs a partir de parâmetros randômicos para Unsplash
+        const keywords = ['cybersecurity', 'security', 'hacking', 'technology', 'network', 'data', 'protection', 'privacy'];
         const syntheticNews = [];
-        for (let i = 0; i < 15; i++) {
+        
+        const baseSources = [
+            'TecMundo', 'Canaltech', 'Tecnoblog', 'CNN Brasil', 'Forbes Brasil', 
+            'InfoMoney', 'Bloomberg Línea', 'CISO Advisor', 'BoletimSec', 
+            'Minuto da Segurança', 'Gizmodo Brasil', 'TechTudo', 'CertiSign Blog', 
+            'TI Inside', 'The Hacker News', 'Bleeping Computer', 'Dark Reading'
+        ];
+        
+        const randomDescriptions = [
+            'Pesquisadores descobriram uma falha crítica que afeta milhões de dispositivos.',
+            'Especialistas recomendam atualizar seus dispositivos imediatamente.',
+            'Nova técnica de proteção promete revolucionar a segurança de dados.',
+            'Empresas investem em tecnologias avançadas para combater ameaças digitais.',
+            'Análise aponta tendências preocupantes no cenário de segurança digital.',
+            'Relatório revela aumento significativo em ataques de ransomware.',
+            'Novas ferramentas de criptografia prometem maior proteção para usuários.',
+            'Estudo identifica falhas em sistemas amplamente utilizados por empresas.',
+            'Especialistas recomendam medidas urgentes para proteger informações sensíveis.',
+            'Investigação aponta origem de recentes ataques a infraestruturas críticas.',
+            'Avanços em inteligência artificial impulsionam defesas contra hackers.',
+            'Análise de especialistas alerta para novas vulnerabilidades em dispositivos IoT.'
+        ];
+        
+        // Criar um aleatório de 10-15 notícias
+        const count = 10 + Math.floor(Math.random() * 6);
+        
+        for (let i = 0; i < count; i++) {
+            // Escolher um tema aleatório para a notícia
+            const keywordIndex = Math.floor(Math.random() * keywords.length);
+            const keyword = keywords[keywordIndex];
+            
+            // Escolher uma descrição aleatória
+            const descIndex = Math.floor(Math.random() * randomDescriptions.length);
+            const description = randomDescriptions[descIndex];
+            
+            // Escolher uma fonte aleatória
             const sourceIndex = Math.floor(Math.random() * baseSources.length);
-            const topic1Index = Math.floor(Math.random() * baseTopics.length);
-            let topic2Index = Math.floor(Math.random() * baseTopics.length);
-            // Garante que não são o mesmo tópico
-            while (topic2Index === topic1Index) {
-                topic2Index = Math.floor(Math.random() * baseTopics.length);
+            
+            // Gerar uma URL do Unsplash baseada no tema
+            const imageSize = '800x450';
+            const imageUrl = `https://source.unsplash.com/random/${imageSize}/?${keyword}`;
+            
+            // Criar título baseado no tema e descrição
+            let title;
+            if (Math.random() > 0.5) {
+                title = `Nova pesquisa revela riscos de ${keyword} para empresas`;
+            } else {
+                title = `Especialistas alertam sobre ameaças de ${keyword} em sistemas`;
             }
             
-            // Gera um ID único para evitar duplicação
-            const uniqueId = Date.now() + i + Math.floor(Math.random() * 10000);
+            // Adicionar indicativo de idioma para inglês em 30% dos casos
+            const lang = Math.random() > 0.7 ? 'en' : 'pt';
+            if (lang === 'en') {
+                title = '[EN] ' + title;
+            }
             
-            // Define o idioma aleatoriamente
-            const lang = Math.random() > 0.3 ? 'pt' : 'en';
-            const prefix = lang === 'en' ? '[EN] ' : '';
+            // Criar ID único para evitar duplicações
+            const uniqueId = Date.now() + '-' + Math.floor(Math.random() * 100000);
             
             syntheticNews.push({
-                title: `${prefix}${baseTopics[topic1Index]} afeta milhares de usuários: ${baseTopics[topic2Index]} pode ser a solução`,
-                image: `https://source.unsplash.com/random/800x600?cybersecurity&sig=${uniqueId}`,
-                description: `Nova descoberta relacionada a ${baseTopics[topic1Index].toLowerCase()} traz preocupação para especialistas em segurança. Pesquisadores recomendam implementar ${baseTopics[topic2Index].toLowerCase()} como medida preventiva.`,
+                title: title,
+                image: imageUrl,
+                description: description,
                 url: 'https://exemplo.com/noticias/' + uniqueId,
                 source: baseSources[sourceIndex],
                 language: lang,
@@ -666,7 +686,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         isLoading = true;
         if (loadingIndicator) loadingIndicator.style.display = 'block';
-        updateButtonState();
+        updateLoadingState();
         
         try {
             let newsToAdd = [];
@@ -674,7 +694,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Primeiro tenta usar notícias pré-carregadas se disponíveis e atualizadas
             if (preloadedNews.length > 0 && (Date.now() - cacheTimestamp < cacheExpirationTime)) {
                 console.log('Usando notícias pré-carregadas...');
-                newsToAdd = preloadedNews.splice(0, 15); // Use 15 notícias do cache
+                newsToAdd = preloadedNews.splice(0, 30); // Aumentado de 15 para 30 notícias do cache
                 
                 // Inicia pré-carregamento de mais notícias em paralelo
                 setTimeout(() => {
@@ -693,14 +713,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 const currentLang = currentLanguageFilter === 'all' ? 
                     currentSource[sourceIndex] : currentLanguageFilter;
                 
-                const url = `scraper.php?load_more=1&page=${page % maxPage}&items=20&lang=${currentLang}&nocache=${Date.now()}`;
+                // Aumentado para 40 itens por solicitação para garantir mais conteúdo
+                const url = `scraper.php?load_more=1&page=${page % maxPage}&items=40&lang=${currentLang}&nocache=${Date.now()}`;
                 console.log(`Carregando mais notícias: ${url}`);
                 
                 let response;
                 try {
                     // Define um timeout curto para falhar rápido se o servidor estiver lento
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 3000);
+                    const timeoutId = setTimeout(() => controller.abort(), 5000); // Aumentado de 3s para 5s
                     
                     response = await fetch(url, {
                         headers: {
@@ -754,69 +775,51 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Se ainda não tivermos notícias suficientes, gera conteúdo adicional
-            if (newsToAdd.length < 10) {
+            if (newsToAdd.length < 15) {
                 const syntheticNews = getMoreSources();
                 newsToAdd = [...newsToAdd, ...syntheticNews];
                 console.log('Adicionando notícias sintéticas para completar...');
             }
             
-            // Adiciona as notícias ao grid
-            const addedCount = appendNews(newsToAdd);
+            // Adiciona as notícias ao grid e obtém quantas foram adicionadas
+            const addedCount = await appendNews(newsToAdd);
             
             // Aumenta a página independentemente da origem das notícias
                 page++;
             hasMore = true; // Sempre true para continuar infinitamente
             
-            // Se adicionamos poucas notícias, continua carregando mais imediatamente
-            if (addedCount < 5) {
-                console.log(`Poucas notícias adicionadas (${addedCount}), carregando mais para completar...`);
+            // Aguarde um momento antes de finalizar o carregamento para evitar flickering
                     setTimeout(() => {
-                        loadMoreNews();
+                isLoading = false;
+                updateLoadingState();
                     }, 500);
-                }
+            
+            console.log(`Adicionadas ${addedCount} notícias na página ${page-1}.`);
+            
+            // Se não adicionamos nenhuma notícia e ainda temos conteúdo, tenta a próxima página
+            if (addedCount === 0 && hasMore) {
+                console.log('Nenhuma notícia adicionada nesta página, tentando a próxima...');
+                setTimeout(() => {
+                    loadMoreNews();
+                }, 1000); // Aumentado para 1s para dar tempo ao DOM de renderizar
+            }
             
         } catch (error) {
             console.error('Erro ao carregar mais notícias:', error);
             
-            // Exibe um alerta mais discreto
-            const errorMsg = document.createElement('div');
-            errorMsg.className = 'error-message';
-            errorMsg.innerHTML = `<p>Continuando carregamento...</p>`;
-            errorMsg.style.color = 'orange';
-            errorMsg.style.textAlign = 'center';
-            errorMsg.style.padding = '10px';
-            
-            if (newsGrid) {
-                // Remove mensagens anteriores se existirem
-                const oldErrors = document.querySelectorAll('.error-message');
-                oldErrors.forEach(e => e.parentNode && e.parentNode.removeChild(e));
-                
-                // Adiciona a mensagem
-                newsGrid.parentNode.insertBefore(errorMsg, newsGrid.nextSibling);
-                
-                // Remove a mensagem após 3 segundos
-                setTimeout(() => {
-                    if (errorMsg.parentNode) {
-                        errorMsg.parentNode.removeChild(errorMsg);
-                    }
-                }, 3000);
-            }
-            
-            // Após erro, obtém mais notícias sintéticas e tenta novamente rapidamente
+            // Em vez de mostrar mensagem, apenas carrega notícias sintéticas
             const syntheticNews = getMoreSources();
-            const addedCount = appendNews(syntheticNews);
+            await appendNews(syntheticNews);
             
+            // Após erro, tenta novamente após um breve intervalo
             setTimeout(() => {
                 isLoading = false;
+                updateLoadingState();
                 page++; // Avança página mesmo após erro
-                loadMoreNews(); // Tenta novamente rapidamente
-            }, 2000);
+                loadMoreNews(); // Tenta novamente
+            }, 1500); // Aumentado para 1.5s para recuperação mais suave
             
             return;
-        } finally {
-            isLoading = false;
-            if (loadingIndicator) loadingIndicator.style.display = 'none';
-            updateButtonState();
         }
     }
 
@@ -829,12 +832,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (newsCount < 25 && !isLoading) {
             console.log('Poucas notícias na página, carregando mais automaticamente...');
             hasMore = true;
+            // Usar timeout para evitar múltiplas chamadas simultâneas
+            setTimeout(() => {
+                if (!isLoading) {
             loadMoreNews();
+                }
+            }, 500);
         }
         
         // Se estamos no final da página, sempre tenta carregar mais
-        if (!isLoading && window.innerHeight > document.body.offsetHeight - 200) {
-            console.log('Página pequena, carregando mais notícias automaticamente...');
+        if (!isLoading && window.innerHeight + window.scrollY > document.body.offsetHeight - 1000) {
+            console.log('Próximo ao final da página, carregando mais notícias automaticamente...');
             hasMore = true;
             loadMoreNews();
         }
@@ -846,7 +854,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Inicializar o carregamento automático
-    if (loadMoreBtn && newsGrid) {
+    if (newsGrid) {
         // Verifica se já existem notícias suficientes na página
         const existingNewsCount = newsGrid.querySelectorAll('.news-card').length;
         
@@ -1209,70 +1217,422 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Função para adicionar notícias ao grid
-    function appendNews(news) {
-        if (!newsGrid || !Array.isArray(news) || news.length === 0) return 0;
+    // Função para validar imagem com requisitos extremamente rigorosos
+    function isValidImage(url) {
+        if (!url || typeof url !== 'string' || url.trim() === '') return false;
         
-        let addedCount = 0;
-        // Melhoria da detecção de duplicatas: histórico de URLs e descrições
-        const urlHistory = new Set();
+        // Lista ampliada de padrões para imagens inválidas
+        const invalidPatterns = [
+            '@', 'unsplash.com', 'placeholder', 'default', 
+            'logo', 'missing', 'ico', 'icon', 'favicon',
+            'no-image', 'newsletter', 'banner', 'author', 
+            'profile', 'avatar', 'anonymous', 'thumb', 
+            'button', '.svg', 'gif', 'pixel', 'spacer', 
+            '1x1', 'blank', 'transparent', 'admin', 
+            'bg-', 'background', 'sidebar', 'header', 
+            'footer', 'widget', 'ad-', 'ads.', 'promo',
+            'sample', 'example', 'empty', 'test', 'stock',
+            'pix/', 'pix.', '/pix', '.pix', 'wp-content/themes',
+            'tracking', 'tracker', 'analytics', 'stat',
+            'share-', 'social-', 'comment-', 'facebook',
+            'twitter', 'instagram', 'youtube', 'disqus',
+            'generic', 'undefined', 'null', 'no-photo',
+            'noimage', 'no-img'
+        ];
         
-        news.forEach(item => {
-            if (!item || !item.title) return; // Verifica se o item é válido
-            
-            // Normaliza o título e verifica se já foi exibido
-            const normalizedTitle = normalizeTitle(item.title);
-            
-            // Verifica URL para evitar duplicatas (muitas vezes o mesmo conteúdo tem títulos diferentes)
-            if (item.url && urlHistory.has(item.url)) {
-                console.log('URL duplicada ignorada:', item.url);
+        // 1. Verificação de padrões inválidos na URL
+        const lowerUrl = url.toLowerCase();
+        for (const pattern of invalidPatterns) {
+            if (lowerUrl.includes(pattern)) {
+                console.log(`Imagem rejeitada por conter padrão '${pattern}': ${url}`);
+                return false;
+            }
+        }
+        
+        // 2. Verificação de extensão válida
+        const validExtensions = ['.jpg', '.jpeg', '.png'];
+        let hasValidExtension = false;
+        
+        for (const ext of validExtensions) {
+            if (lowerUrl.includes(ext)) {
+                hasValidExtension = true;
+                break;
+            }
+        }
+        
+        // Se não tem extensão válida, ainda pode verificar parâmetros de imagem
+        if (!hasValidExtension) {
+            // Verifica se a URL tem 'image' ou similar no caminho ou parâmetros
+            if (!/image|foto|picture|img/i.test(url)) {
+                console.log(`Imagem rejeitada por não ter extensão válida: ${url}`);
+                return false;
+            }
+        }
+        
+        // 3. Verificação de URL absoluta
+        if (!/^https?:\/\//i.test(url)) {
+            console.log(`Imagem rejeitada por não ter URL absoluta: ${url}`);
+            return false;
+        }
+        
+        // 4. Verificação de tamanho provável no nome do arquivo
+        if (/\d+x\d+/i.test(url)) {
+            const match = url.match(/(\d+)x(\d+)/i);
+            if (match) {
+                const width = parseInt(match[1]);
+                const height = parseInt(match[2]);
+                if (width < 300 || height < 300) {
+                    console.log(`Imagem rejeitada por dimensões no nome (${width}x${height}): ${url}`);
+                    return false;
+                }
+            }
+        }
+        
+        // 5. Verificação de domínio inadequado
+        const badDomains = ['i0.wp.com', 'i1.wp.com', 'i2.wp.com', 'gravatar.com', 'doubleclick.net', 'google-analytics', 'googleads'];
+        const domainMatch = url.match(/^https?:\/\/([^\/]+)\//i);
+        if (domainMatch) {
+            const domain = domainMatch[1].toLowerCase();
+            for (const badDomain of badDomains) {
+                if (domain.includes(badDomain)) {
+                    console.log(`Imagem rejeitada por domínio inadequado '${badDomain}': ${url}`);
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+
+    // Variáveis globais para guardar hashes visuais
+    if (!window.processedImageHashes) {
+        window.processedImageHashes = new Set();
+    }
+
+    // Função que retorna uma URL de imagem de fallback garantidamente boa
+    function getHighQualityFallbackImage(item) {
+        // Usar imagem baseada no tópico e fonte para alta qualidade
+        const uniqueId = Date.now() + Math.floor(Math.random() * 10000);
+        
+        // Lista de categorias para imagens mais específicas
+        const categories = [
+            'cybersecurity', 'hacker', 'data-security', 
+            'encryption', 'computer-security', 'network-protection',
+            'cyber-defense', 'digital-security', 'tech-security'
+        ];
+        
+        // Escolher categoria com base no hash da fonte e título
+        const hash = (item.source + item.title).split('').reduce((a, b) => {
+            a = ((a << 5) - a) + b.charCodeAt(0);
+            return a & a;
+        }, 0);
+        
+        const category = categories[Math.abs(hash) % categories.length];
+        
+        // Gerar URL para Unsplash com categoria específica e ID único
+        return `https://source.unsplash.com/featured/800x500/?${category}&sig=${uniqueId}`;
+    }
+
+    // Função aprimorada para pré-validar imagem com verificação de conteúdo real
+    async function preloadAndValidateImage(item) {
+        const url = item.image;
+        
+        return new Promise(resolve => {
+            // Se a URL não parece boa, retornar imediatamente uma de substituição
+            if (!isValidImage(url)) {
+                console.log(`URL de imagem rejeitada pelos padrões: ${url}`);
+                item.image = getHighQualityFallbackImage(item);
+                item.usedFallback = true;
+                resolve(true);
                 return;
             }
             
-            // Verifica título duplicado com limiar de similaridade mais alto (90%)
-            let isDuplicate = false;
-            displayedTitles.forEach(existingTitle => {
-                // Aumentado para 0.9 (90% similar) para ser mais restritivo
-                const similarity = getSimilarity(normalizedTitle, existingTitle);
-                if (similarity > 0.9) {
-                    isDuplicate = true;
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            
+            img.onload = () => {
+                try {
+                    // Verificar se a imagem é grande o suficiente
+                    if (img.width < 250 || img.height < 200) {
+                        console.log(`Imagem muito pequena (${img.width}x${img.height}): ${url}`);
+                        item.image = getHighQualityFallbackImage(item);
+                        item.usedFallback = true;
+                        resolve(true);
                     return;
                 }
-            });
-            
-            if (isDuplicate) {
-                console.log('Título similar ignorado:', item.title);
+                    
+                    // Verificar proporção
+                    const ratio = img.width / img.height;
+                    if (ratio < 0.5 || ratio > 2.5) {
+                        console.log(`Imagem com proporção inadequada (${ratio.toFixed(2)}): ${url}`);
+                        item.image = getHighQualityFallbackImage(item);
+                        item.usedFallback = true;
+                        resolve(true);
                 return;
             }
             
-            // Verifica se a notícia atende ao filtro de idioma atual
-            if (currentLanguageFilter !== 'all' && item.language !== currentLanguageFilter) {
-                console.log(`Notícia em ${item.language} ignorada devido ao filtro atual: ${currentLanguageFilter}`);
-                return; // Pula esta notícia se não atender ao filtro
+                    // Tentar analisar conteúdo visual - com tratamento de erro robusto
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        
+                        // Redimensionar para análise
+                        canvas.width = 50;
+                        canvas.height = 50;
+                        context.drawImage(img, 0, 0, 50, 50);
+                        
+                        // Obter dados de pixels
+                        const imageData = context.getImageData(0, 0, 50, 50).data;
+                        
+                        // Detectar imagens com poucos tons
+                        const colors = new Set();
+                        for (let i = 0; i < imageData.length; i += 16) {
+                            const r = imageData[i];
+                            const g = imageData[i + 1];
+                            const b = imageData[i + 2];
+                            colors.add(`${r},${g},${b}`);
+                            if (colors.size > 20) break;
+                        }
+                        
+                        if (colors.size < 10) {
+                            console.log(`Imagem com poucas cores (${colors.size}): ${url}`);
+                            item.image = getHighQualityFallbackImage(item);
+                            item.usedFallback = true;
+                            resolve(true);
+                            return;
+                        }
+                    } catch (canvasError) {
+                        // Se houver erro na análise do canvas, prosseguir mesmo assim
+                        console.log(`Erro na análise de canvas (prosseguindo): ${canvasError.message}`);
+                    }
+                    
+                    // Se chegou até aqui, a imagem original é boa
+                    console.log(`✓ Imagem original aprovada: "${item.title}"`);
+                    resolve(true);
+                    
+                } catch (error) {
+                    console.log(`Erro ao analisar imagem: ${error.message}`);
+                    item.image = getHighQualityFallbackImage(item);
+                    item.usedFallback = true;
+                    resolve(true);
+                }
+            };
+            
+            img.onerror = () => {
+                console.log(`Erro ao carregar imagem: ${url}`);
+                item.image = getHighQualityFallbackImage(item);
+                item.usedFallback = true;
+                resolve(true);
+            };
+            
+            // Adicionar timestamp para evitar cache
+            img.src = url + (url.includes('?') ? '&' : '?') + '_nocache=' + Date.now();
+            
+            // Timeout curto - se demorar, usar fallback
+            setTimeout(() => {
+                if (!img.complete) {
+                    console.log(`Timeout ao carregar imagem: ${url}`);
+                    item.image = getHighQualityFallbackImage(item);
+                    item.usedFallback = true;
+                    resolve(true);
+                }
+            }, 3000);
+        });
+    }
+
+    // Função para verificar rigorosamente a semelhança do título
+    function isDuplicateTitle(newTitle, existingTitles) {
+        if (!newTitle || newTitle.trim() === '') return true;
+        
+        // Normaliza o título para comparação
+        const normalizedTitle = normalizeTitle(newTitle);
+        
+        // 1. Verificar título exato
+        if (existingTitles.has(normalizedTitle)) {
+            console.log(`Título exato duplicado: "${newTitle}"`);
+            return true;
+        }
+        
+        // 2. Verificar sem tags como [EN]
+        const cleanTitle = normalizedTitle.replace(/^\[[^\]]+\]\s*/, '');
+        
+        // Se o título limpo for muito curto (menos de 3 palavras), é genérico demais
+        const words = cleanTitle.split(/\s+/);
+        if (words.length < 3) {
+            console.log(`Título muito curto rejeitado: "${newTitle}"`);
+            return true;
+        }
+        
+        // 3. Verificar palavras-chave
+        // Extrai palavras importantes (mais de 3 caracteres)
+        const keyWords = words.filter(w => w.length > 3);
+        
+        // Se tem menos de 2 palavras-chave, é vago demais
+        if (keyWords.length < 2) {
+            console.log(`Título com poucas palavras-chave rejeitado: "${newTitle}"`);
+            return true;
+        }
+        
+        // 4. Verificação de similaridade em títulos existentes
+        for (const existingTitle of existingTitles) {
+            // Remove tags para comparação
+            const cleanExistingTitle = existingTitle.replace(/^\[[^\]]+\]\s*/, '');
+            
+            // Se o título limpo for igual, é duplicata
+            if (cleanTitle === cleanExistingTitle) {
+                console.log(`Título idêntico após remoção de tags: "${newTitle}"`);
+                return true;
             }
             
-            // Adiciona ao cache de títulos e URLs exibidos
-            displayedTitles.add(normalizedTitle);
-            if (item.url) urlHistory.add(item.url);
+            // Verificar similaridade com um limite mais alto (95%)
+            const similarity = getSimilarity(cleanTitle, cleanExistingTitle);
+            if (similarity > 0.95) {
+                console.log(`Título com ${Math.round(similarity * 100)}% de similaridade rejeitado: "${newTitle}"`);
+                return true;
+            }
             
+            // Verificar palavras-chave em comum
+            const existingWords = cleanExistingTitle.split(/\s+/).filter(w => w.length > 3);
+            const commonWords = keyWords.filter(word => existingWords.includes(word));
+            
+            // Se pelo menos 80% das palavras-chave são comuns, é similar demais
+            if (commonWords.length >= Math.min(keyWords.length, existingWords.length) * 0.8) {
+                console.log(`Título com palavras-chave similares rejeitado: "${newTitle}"`);
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    // Função para adicionar notícias ao grid com substituição garantida de imagens
+    async function appendNews(news) {
+        if (!newsGrid || !Array.isArray(news) || news.length === 0) return 0;
+        
+        // Rastreamento global de notícias para toda a sessão
+        if (!window.globalTitleCache) {
+            window.globalTitleCache = new Set();
+            window.globalUrlCache = new Set();
+            
+            // Preencher com títulos e URLs já existentes
+            document.querySelectorAll('.news-card').forEach(card => {
+                const title = card.querySelector('h3');
+                const url = card.querySelector('.read-more');
+                if (title) window.globalTitleCache.add(normalizeTitle(title.textContent));
+                if (url && url.href) window.globalUrlCache.add(url.href);
+            });
+            
+            console.log(`Cache inicial: ${window.globalTitleCache.size} títulos, ${window.globalUrlCache.size} URLs`);
+        }
+        
+        // Limpar qualquer notícia existente com problema
+        document.querySelectorAll('.news-card').forEach(card => {
+            const img = card.querySelector('img');
+            if (!img || !img.complete || img.naturalWidth === 0 || img.style.display === 'none') {
+                console.log('Removendo card com imagem inválida');
+                card.remove();
+            }
+        });
+        
+        // Array para notícias filtradas
+        const filteredNews = [];
+        
+        // Filtrar notícias com problemas óbvios
+        for (const item of news) {
+            // Verificações básicas
+            if (!item || !item.title || !item.source || !item.url) continue;
+            
+            // Verificar URL (se é inválida ou contém padrões indesejados)
+            const badUrlPatterns = /(contato|contact|reportar-erro|report-error|error|erro|login|cadastro|register|password|senha|account|conta|admin|wp-admin|wp-login|painel|dashboard|perfil|profile|form|formulario|captcha|privacidade|privacy|terms|termos|politica|policy|cookies|lgpd|gdpr|subscribe|newsletter|\?pst=)/i;
+            
+            if (badUrlPatterns.test(item.url)) {
+                console.log(`URL inválida ignorada: ${item.url}`);
+                continue;
+            }
+            
+            // Verificar se o URL já foi usado
+            if (window.globalUrlCache.has(item.url)) {
+                console.log(`URL já utilizada: ${item.url}`);
+                continue;
+            }
+            
+            // Verificar URL limpa (sem parâmetros ou fragmentos)
+            const cleanUrl = item.url.split('?')[0].split('#')[0];
+            if (window.globalUrlCache.has(cleanUrl)) {
+                console.log(`URL base já utilizada: ${cleanUrl}`);
+                continue;
+            }
+            
+            // Verificar duplicação de título (usando similaridade mais alta)
+            if (isDuplicateTitle(item.title, window.globalTitleCache)) {
+                continue;
+            }
+            
+            // Verificar filtro de idioma
+            if (currentLanguageFilter !== 'all' && item.language !== currentLanguageFilter) {
+                console.log(`Notícia em ${item.language} ignorada (filtro: ${currentLanguageFilter}): "${item.title}"`);
+                continue;
+            }
+            
+            // Verificar se a imagem existe e é válida
+            // Pular completamente itens sem imagem
+            if (!item.image || item.image === '' || 
+                /icon|logo|placeholder|banner|default|header|footer|thumbnail/i.test(item.image)) {
+                console.log(`Imagem inválida ou ausente ignorada: ${item.title}`);
+                continue;
+            }
+            
+            // Adicionar à lista de notícias filtradas
+            filteredNews.push(item);
+            
+            // Limitar número de notícias por carregamento
+            if (filteredNews.length >= 12) {
+                console.log(`Limite de 12 notícias filtradas atingido`);
+                break;
+            }
+        }
+        
+        console.log(`Filtradas ${filteredNews.length} notícias de ${news.length}`);
+        
+        // Processar imagens e validar cada notícia
+        for (let i = 0; i < filteredNews.length; i++) {
+            const item = filteredNews[i];
+            try {
+                // Verificar e substituir imagem se necessário
+                await preloadAndValidateImage(item);
+                
+                // Adicionar aos caches globais
+                window.globalTitleCache.add(normalizeTitle(item.title));
+                window.globalUrlCache.add(item.url);
+                window.globalUrlCache.add(item.url.split('?')[0].split('#')[0]);
+                
+                console.log(`✓ Notícia #${i+1} aprovada: "${item.title}"`);
+            } catch (error) {
+                console.error(`Erro ao processar notícia: ${error}`);
+                // Mesmo com erro, mantemos a notícia pois já temos imagem de fallback
+            }
+        }
+        
+        // Adicionar as notícias aprovadas ao DOM
+        let addedCount = 0;
+        
+        filteredNews.forEach(item => {
             const article = document.createElement('article');
             article.className = `news-card lang-${item.language || 'pt'}`;
             
-            // Se a notícia não tiver imagem, usa a imagem genérica específica de cybersecurity
-            // em vez da padrão
-            let imageUrl = item.image || '';
+            // Indicar se é uma imagem de fallback com cor diferente no badge
+            const fallbackClass = item.usedFallback ? ' fallback-badge' : '';
             
-            // Remove o uso de fallback estático para cada item e só usa a imagem real
             article.innerHTML = `
                 <div class="news-image">
-                    <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(item.title)}">
-                    <span class="badge">${escapeHtml(item.source)}</span>
+                    <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.style.display='none'">
+                    <a href="${escapeHtml(item.url)}" class="source-badge${fallbackClass}" target="_blank">${escapeHtml(item.source)}</a>
                     ${item.language === 'en' ? '<span class="language-badge">EN</span>' : ''}
                 </div>
                 <div class="news-content">
                     <h3>${escapeHtml(item.title)}</h3>
                     <p>${escapeHtml(item.description)}</p>
-                    <a href="${escapeHtml(item.url)}" target="_blank" class="read-more">Leia mais <i class="fas fa-arrow-right"></i></a>
+                    <a href="${escapeHtml(item.url)}" class="read-more" target="_blank">Ler mais <i class="fas fa-arrow-right"></i></a>
                 </div>
             `;
             
@@ -1280,12 +1640,85 @@ document.addEventListener('DOMContentLoaded', function() {
             addedCount++;
         });
         
+        // Se estiver em modo psicodélico, aplique efeitos aos novos cards
+        if (document.body.classList.contains('psychedelic-mode')) {
+            document.querySelectorAll('.news-card').forEach(card => {
+                // Verificar se o card já tem a classe para evitar reaplicar
+                if (!card.classList.contains('psychedelic-applied')) {
+                    card.classList.add('psychedelic-applied');
+                    
+                    // Adicionar folhas flutuantes com atraso para garantir que o DOM esteja pronto
+                    setTimeout(() => {
+                        const cardRect = card.getBoundingClientRect();
+                        // Apenas adicione se o card for visível no DOM
+                        if (cardRect.width > 0 && cardRect.height > 0) {
+                            createFloatingCannabisLeaf(card);
+                        }
+                    }, 500);
+                }
+            });
+        }
+        
+        // Limitar tamanho dos caches globais
+        if (window.globalTitleCache && window.globalTitleCache.size > 200) {
+            const titlesArray = Array.from(window.globalTitleCache);
+            window.globalTitleCache = new Set(titlesArray.slice(-150));
+            console.log(`Cache de títulos reduzido para 150 itens`);
+        }
+        
+        if (window.globalUrlCache && window.globalUrlCache.size > 200) {
+            const urlsArray = Array.from(window.globalUrlCache);
+            window.globalUrlCache = new Set(urlsArray.slice(-150));
+            console.log(`Cache de URLs reduzido para 150 itens`);
+        }
+        
+        // Se adicionamos muito pouco, carregar mais automaticamente, mas com um delay para evitar loops rápidos
+        if (addedCount < 3 && window.autoLoadMore !== false) {
+            console.log(`Apenas ${addedCount} notícias adicionadas, carregando mais automaticamente...`);
+            setTimeout(() => {
+                // Apenas carrega se não estivermos em um carregamento já
+                if (!isLoading) {
+                    loadMoreNews();
+                }
+            }, 1500);  // Delay significativo para permitir renderização completa
+        }
+        
         return addedCount;
     }
 
     // Função para calcular similaridade entre dois strings (algoritmo de Levenshtein)
     function getSimilarity(str1, str2) {
+        if (!str1 || !str2) return 0;
         if (str1 === str2) return 1.0;
+        
+        // Normaliza as strings para comparação
+        str1 = str1.toLowerCase().trim();
+        str2 = str2.toLowerCase().trim();
+        
+        // Remove caracteres especiais e números para comparação mais precisa
+        str1 = str1.replace(/[^\w\s]/g, '').replace(/\d+/g, '');
+        str2 = str2.replace(/[^\w\s]/g, '').replace(/\d+/g, '');
+        
+        // Verifica se um título está contido no outro (caso de subtítulos)
+        if ((str1.includes(str2) && str2.length > 15) || 
+            (str2.includes(str1) && str1.length > 15)) {
+            return 0.95;
+        }
+        
+        // Verifica palavras-chave comuns
+        const words1 = str1.split(/\s+/).filter(w => w.length > 3);  // Palavras com mais de 3 letras
+        const words2 = str2.split(/\s+/).filter(w => w.length > 3);
+        
+        if (words1.length > 3 && words2.length > 3) {
+            // Conta palavras em comum
+            const commonWords = words1.filter(w => words2.includes(w));
+            const commonRatio = commonWords.length / Math.min(words1.length, words2.length);
+            
+            // Se compartilham muitas palavras-chave, considera similar
+            if (commonRatio > 0.6) {
+                return 0.92;
+            }
+        }
         
         const lenStr1 = str1.length;
         const lenStr2 = str2.length;

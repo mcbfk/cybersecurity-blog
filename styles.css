@@ -870,22 +870,52 @@ header h1 {
 }
 
 .news-card {
-    background: white;
-    border-radius: var(--border-radius);
+    background-color: var(--card-background);
+    border-radius: 10px;
     overflow: hidden;
-    box-shadow: var(--shadow);
-    transition: var(--transition);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
 }
 
 .news-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent-color);
 }
 
 .news-image {
-    height: 200px;
-    overflow: hidden;
     position: relative;
+    overflow: hidden;
+    height: 200px;
+    background-color: var(--background-dimmed);
+    background-image: linear-gradient(
+        45deg,
+        var(--background-dimmed) 25%,
+        var(--background-secondary) 25%,
+        var(--background-secondary) 50%,
+        var(--background-dimmed) 50%,
+        var(--background-dimmed) 75%,
+        var(--background-secondary) 75%
+    );
+    background-size: 30px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.news-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+    z-index: 1;
 }
 
 .news-image img {
@@ -893,6 +923,23 @@ header h1 {
     height: 100%;
     object-fit: cover;
     transition: transform 0.5s ease;
+    position: relative;
+    z-index: 2;
+}
+
+/* Placeholder icon when image is empty */
+.news-image:not(:has(img[src]:not([src=""]))) {
+    position: relative;
+}
+
+.news-image:not(:has(img[src]:not([src=""])))::after {
+    content: '\f3cd';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 3rem;
+    color: var(--text-muted);
+    position: absolute;
+    z-index: 3;
 }
 
 .news-card:hover .news-image img {
@@ -903,6 +950,20 @@ header h1 {
     position: absolute;
     top: 15px;
     left: 15px;
+    z-index: 1;
+}
+
+.news-image .language-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 1;
+    background-color: var(--accent-color);
+    color: white;
+    padding: 3px 8px;
+    border-radius: var(--border-radius);
+    font-size: 0.8rem;
+    font-weight: bold;
 }
 
 .news-content {
@@ -1554,38 +1615,6 @@ footer {
     .section-title {
         font-size: 1.5rem;
     }
-}
-
-/* Botão Carregar Mais e Loading */
-.load-more-container {
-    text-align: center;
-    margin: 40px 0;
-}
-
-#load-more-btn {
-    background-color: var(--secondary-color);
-    color: white;
-    padding: 15px 30px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    border-radius: 30px;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s ease;
-    letter-spacing: 1px;
-}
-
-#load-more-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-    background-color: #2980b9;
-}
-
-#load-more-btn.disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-    box-shadow: none;
 }
 
 @keyframes floatPreloader {
@@ -3579,58 +3608,211 @@ header .container {
         transform: translateY(-5px);
     }
 }
-/* assets/css/main.css */
 
-body {
-    font-family: Arial, sans-serif;
-    background-color: #1a1a1a;
-    color: #e0e0e0;
-    margin: 0;
-    padding: 0;
+/* Loading Indicator - Improved to prevent flickering and provide better feedback */
+.loading {
+    display: none;
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    background-color: var(--background-secondary);
+    color: var(--text-color);
+    padding: 10px 20px;
+    border-radius: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    font-weight: 500;
+    opacity: 0;
+    animation: fadeInOut 1.5s ease-in-out infinite;
+    border: 1px solid var(--accent-color);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    pointer-events: none;
   }
   
-  .container {
-    width: 90%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  header, footer {
-    background-color: #333;
-    padding: 20px;
-    text-align: center;
-  }
-  
-  nav ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  nav ul li {
-    display: inline;
-    margin: 0 10px;
-  }
-  
-  a {
-    color: #1e90ff;
-    text-decoration: none;
-  }
-  
-  a:hover {
-    text-decoration: underline;
-  }
-  
-  .featured-news, .blog-posts {
-    margin: 20px 0;
-  }
-  
-  #crypto-ticker, #news-updater {
-    background-color: #222;
-    padding: 10px;
-    margin: 10px 0;
-    font-size: 0.9em;
+@keyframes fadeInOut {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+/* News cards with improved image handling */
+.news-card {
+    background-color: var(--card-background);
+    border-radius: 10px;
     overflow: hidden;
-    white-space: nowrap;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
   }
   
+.news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent-color);
+}
+
+.news-image {
+    position: relative;
+    overflow: hidden;
+    height: 200px;
+    background-color: var(--background-dimmed);
+    background-image: linear-gradient(
+        45deg,
+        var(--background-dimmed) 25%,
+        var(--background-secondary) 25%,
+        var(--background-secondary) 50%,
+        var(--background-dimmed) 50%,
+        var(--background-dimmed) 75%,
+        var(--background-secondary) 75%
+    );
+    background-size: 30px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.news-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+    z-index: 1;
+}
+
+.news-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+    position: relative;
+    z-index: 2;
+}
+
+/* Placeholder icon when image is empty */
+.news-image:not(:has(img[src]:not([src=""]))) {
+    position: relative;
+  }
+  
+.news-image:not(:has(img[src]:not([src=""])))::after {
+    content: '\f3cd';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 3rem;
+    color: var(--text-muted);
+    position: absolute;
+    z-index: 3;
+  }
+  
+/* Other news card styles remain the same */
+// ... existing code ...
+
+/* Estilo para o badge de fonte no canto superior esquerdo */
+.source-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.source-badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    background-color: var(--accent-color);
+}
+
+/* Reposicionar o badge de linguagem */
+.language-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #e74c3c;
+    color: #fff;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    z-index: 2;
+}
+
+/* Modo escuro - ajustes para o badge de fonte */
+.dark-mode .source-badge {
+    background-color: var(--primary-dark);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .source-badge:hover {
+    background-color: var(--accent-dark);
+}
+
+/* Modo psicodélico - ajustes para o badge de fonte */
+.psychedelic-mode .source-badge {
+    background: linear-gradient(45deg, var(--psychedelic-green), var(--psychedelic-blue));
+    animation: psychedelic-badge-glow 3s infinite alternate;
+}
+
+.psychedelic-mode .source-badge:hover {
+    animation: psychedelic-badge-pulse 1s infinite;
+}
+
+@keyframes psychedelic-badge-glow {
+    0% { box-shadow: 0 0 5px rgba(92, 219, 92, 0.7); }
+    100% { box-shadow: 0 0 15px rgba(92, 219, 92, 0.9); }
+}
+
+@keyframes psychedelic-badge-pulse {
+    0% { transform: scale(1.05); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1.05); }
+}
+
+/* ... existing code ...
+
+/* Estilo para o badge de fonte quando usa imagem de fallback */
+.fallback-badge {
+  background-color: #ff9800 !important; 
+  transition: background-color 0.3s ease;
+}
+
+.fallback-badge:hover {
+  background-color: #f57c00 !important;
+}
+
+/* Ajustes para garantir que imagens sempre sejam exibidas corretamente */
+.news-image img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  transition: opacity 0.4s ease;
+}
+
+.news-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Melhorar animação de hover */
+.news-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
