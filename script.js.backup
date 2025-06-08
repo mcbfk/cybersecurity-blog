@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', function() {
     // Preloader handling - deve ser o primeiro para evitar conflitos
     const preloader = document.getElementById('preloader');
@@ -9,54 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
         mainContent.style.visibility = 'hidden';
     }
     
-    // Esperar todas as imagens carregarem
-    const images = document.querySelectorAll('img');
-    let imagesToLoad = images.length;
-    
-    // Verificar se imagens já estão carregadas
-    images.forEach(img => {
-        if (img.complete) {
-            imagesToLoad--;
-        } else {
-            img.addEventListener('load', imageLoaded);
-            img.addEventListener('error', imageLoaded); // Tratar erro também
-        }
-    });
-    
-    function imageLoaded() {
-        imagesToLoad--;
-        if (imagesToLoad <= 0) {
-            showPage();
-        }
-    }
-    
-    // Fallback caso não haja imagens
-    if (imagesToLoad <= 0) {
-        setTimeout(showPage, 2000);
-    }
-    
-    function showPage() {
-        // Preloader mínimo de 2 segundos
-        setTimeout(() => {
-            document.body.classList.add('loaded');
-            
-            // Tornar conteúdo visível
-            setTimeout(() => {
-                if (mainContent) {
-                    mainContent.style.opacity = '1';
-                    mainContent.style.visibility = 'visible';
-                }
-                
-                // Forçar recarregamento de imagens quebradas
-                document.querySelectorAll('img').forEach(img => {
-                    if (!img.complete || img.naturalWidth === 0) {
-                        img.src = img.src; // Força recarregamento
-                    }
-                });
-            }, 500);
-        }, 2000);
-    }
-    
     // Criar efeito de texto binário no preloader
     if (document.querySelector('.binary-text')) {
         generateBinaryText();
@@ -64,6 +17,36 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Animação das bolhas psicodélicas no preloader
     animatePsychedelicBubbles();
+    
+    // Função para mostrar a página quando tudo estiver carregado
+    function showPage() {
+        // Força o preloader a mostrar por pelo menos 2 segundos
+        setTimeout(() => {
+            // Adiciona a classe loaded ao body para acionar transições
+            document.body.classList.add('loaded');
+            
+            // Tornar o conteúdo principal visível após a transição
+            setTimeout(() => {
+                if (mainContent) {
+                    mainContent.style.opacity = '1';
+                    mainContent.style.visibility = 'visible';
+                }
+                
+                // Remover completamente o preloader depois da transição
+                if (preloader) {
+                    preloader.style.display = 'none';
+                }
+            }, 800);
+        }, 2000);
+    }
+    
+    // Se todos os recursos já estiverem carregados
+    if (document.readyState === 'complete') {
+        showPage();
+    } else {
+        // Espera tudo carregar e então mostra a página
+        window.addEventListener('load', showPage);
+    }
     
     // Theme switching functionality
     const themeSwitch = document.getElementById('theme-switch');
@@ -572,7 +555,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 250); // Aumentado para reduzir a frequência de verificações durante scroll
     });
 
-    // Função para pré-carregar a próxima página com otimização
+    // Função para pré-carregar a próxima página
     function preloadNextPage() {
         if (isPreloading) return;
         
@@ -589,19 +572,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const url = `scraper.php?load_more=1&page=${preloadPage}&items=30&lang=${preloadLang}&nocache=${Date.now()}`;
         
-        // Adicionando timeout para melhorar a performance
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 segundos de timeout
-        
         fetch(url, {
-            signal: controller.signal,
             headers: {
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache'
             }
         })
         .then(response => {
-            clearTimeout(timeoutId);
             if (!response.ok) throw new Error('Erro na resposta');
             return response.json();
         })
@@ -618,28 +595,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Atualiza o timestamp do cache
                 cacheTimestamp = Date.now();
-                
-                // Pré-carrega as primeiras 5 imagens para melhorar a experiência do usuário
-                setTimeout(() => {
-                    data.news.slice(0, 5).forEach(item => {
-                        if (item.image && item.image.startsWith('http')) {
-                            const img = new Image();
-                            img.src = item.image;
-                            // Prepara uma imagem de fallback caso a original falhe
-                            img.onerror = function() {
-                                const fallbackImg = new Image();
-                                fallbackImg.src = `https://source.unsplash.com/random/800x600?cybersecurity,hacker&sig=${Date.now() + Math.random()}`;
-                                item.image = fallbackImg.src;
-                                item.usedFallback = true;
-                            };
-                        }
-                    });
-                }, 100);
             }
             isPreloading = false;
         })
         .catch(error => {
-            clearTimeout(timeoutId);
             console.error('Erro no pré-carregamento:', error);
             isPreloading = false;
         });
@@ -895,38 +854,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Inicializar o carregamento automático
-    if (newsGrid) {
-        // Verifica se já existem notícias suficientes na página
-        const existingNewsCount = newsGrid.querySelectorAll('.news-card').length;
-        
-        if (existingNewsCount < 10) {
-            // Se houver poucas notícias, carrega mais automaticamente
-            setTimeout(() => {
-                hasMore = true;
-                loadMoreNews();
-            }, 300);
-        }
-        
-        // Iniciar preload de mais páginas logo após carregar o site
-        setTimeout(() => {
-            preloadNextPage();
-        }, 1000);
-        
-        // Inicia verificação periódica mais frequente
-        setInterval(checkContentAndReload, 3000);
-    }
+return syntheticNews;
+}
 
-    // Função para criar elementos do preloader canábico
-    function createCannabisPreloaderElements() {
-        const preloader = document.getElementById('preloader');
-        
-        // Adicionar folhas de cannabis ao preloader
-        for (let i = 0; i < 10; i++) {
-            const leaf = document.createElement('div');
-            leaf.className = 'cannabis-leaf preloader-leaf';
-            
-            // Determinar tamanho aleatório
+async function loadMoreNews() {
+if (isLoading) return;
+
+isLoading = true;
+if (loadingIndicator) loadingIndicator.style.display = 'block';
+updateLoadingState();
+
+try {
+    let newsToAdd = [];
+
+    // Primeiro tenta usar notícias pré-carregadas se disponíveis e atualizadas
+    if (preloadedNews.length > 0 && (Date.now() - cacheTimestamp < cacheExpirationTime)) {
+        console.log('Usando notícias pré-carregadas...');
+        newsToAdd = preloadedNews.splice(0, 30); // Aumentado de 15 para 30 notícias do cache
+
+        // Inicia pré-carregamento de mais notícias em paralelo
             const size = Math.random() * 40 + 20;
             leaf.style.width = `${size}px`;
             leaf.style.height = `${size}px`;
@@ -1324,7 +1270,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const width = parseInt(match[1]);
                 const height = parseInt(match[2]);
                 if (width < 300 || height < 300) {
-                    console.log(`Imagem muito pequena (${width}x${height}): ${url}`);
+                    console.log(`Imagem rejeitada por dimensões no nome (${width}x${height}): ${url}`);
                     return false;
                 }
             }
@@ -1400,8 +1346,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         item.image = getHighQualityFallbackImage(item);
                         item.usedFallback = true;
                         resolve(true);
-                return;
-            }
+                    return;
+                }
                     
                     // Verificar proporção
                     const ratio = img.width / img.height;
@@ -1410,6 +1356,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         item.image = getHighQualityFallbackImage(item);
                         item.usedFallback = true;
                         resolve(true);
+                return;
             }
             
                     // Tentar analisar conteúdo visual - com tratamento de erro robusto
@@ -1479,6 +1426,71 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }, 3000);
         });
+    }
+
+    // Função para verificar rigorosamente a semelhança do título
+    function isDuplicateTitle(newTitle, existingTitles) {
+        if (!newTitle || newTitle.trim() === '') return true;
+        
+        // Normaliza o título para comparação
+        const normalizedTitle = normalizeTitle(newTitle);
+        
+        // 1. Verificar título exato
+        if (existingTitles.has(normalizedTitle)) {
+            console.log(`Título exato duplicado: "${newTitle}"`);
+            return true;
+        }
+        
+        // 2. Verificar sem tags como [EN]
+        const cleanTitle = normalizedTitle.replace(/^\[[^\]]+\]\s*/, '');
+        
+        // Se o título limpo for muito curto (menos de 3 palavras), é genérico demais
+        const words = cleanTitle.split(/\s+/);
+        if (words.length < 3) {
+            console.log(`Título muito curto rejeitado: "${newTitle}"`);
+            return true;
+        }
+        
+        // 3. Verificar palavras-chave
+        // Extrai palavras importantes (mais de 3 caracteres)
+        const keyWords = words.filter(w => w.length > 3);
+        
+        // Se tem menos de 2 palavras-chave, é vago demais
+        if (keyWords.length < 2) {
+            console.log(`Título com poucas palavras-chave rejeitado: "${newTitle}"`);
+            return true;
+        }
+        
+        // 4. Verificação de similaridade em títulos existentes
+        for (const existingTitle of existingTitles) {
+            // Remove tags para comparação
+            const cleanExistingTitle = existingTitle.replace(/^\[[^\]]+\]\s*/, '');
+            
+            // Se o título limpo for igual, é duplicata
+            if (cleanTitle === cleanExistingTitle) {
+                console.log(`Título idêntico após remoção de tags: "${newTitle}"`);
+                return true;
+            }
+            
+            // Verificar similaridade com um limite mais alto (95%)
+            const similarity = getSimilarity(cleanTitle, cleanExistingTitle);
+            if (similarity > 0.95) {
+                console.log(`Título com ${Math.round(similarity * 100)}% de similaridade rejeitado: "${newTitle}"`);
+                return true;
+            }
+            
+            // Verificar palavras-chave em comum
+            const existingWords = cleanExistingTitle.split(/\s+/).filter(w => w.length > 3);
+            const commonWords = keyWords.filter(word => existingWords.includes(word));
+            
+            // Se pelo menos 80% das palavras-chave são comuns, é similar demais
+            if (commonWords.length >= Math.min(keyWords.length, existingWords.length) * 0.8) {
+                console.log(`Título com palavras-chave similares rejeitado: "${newTitle}"`);
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     // Função para adicionar notícias ao grid com substituição garantida de imagens
@@ -1601,9 +1613,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             article.innerHTML = `
                 <div class="news-image">
-                    <img src="${escapeHtml(item.image)}" alt="" loading="lazy" 
-                         onerror="this.onerror=null; this.src='https://source.unsplash.com/random/800x600?cybersecurity,hacker&sig=${Date.now() + Math.random()}'; this.style.opacity='1'"
-                         style="opacity: 0; transition: opacity 0.5s ease;">
+                    <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.style.display='none'">
                     <a href="${escapeHtml(item.url)}" class="source-badge${fallbackClass}" target="_blank">${escapeHtml(item.source)}</a>
                     ${item.language === 'en' ? '<span class="language-badge">EN</span>' : ''}
                 </div>
@@ -1613,14 +1623,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     <a href="${escapeHtml(item.url)}" class="read-more" target="_blank">Ler mais <i class="fas fa-arrow-right"></i></a>
                 </div>
             `;
-            
-            // Adiciona um evento para mostrar a imagem com fade-in quando estiver carregada
-            const img = article.querySelector('img');
-            if (img) {
-                img.onload = function() {
-                    this.style.opacity = '1';
-                };
-            }
             
             newsGrid.appendChild(article);
             addedCount++;
@@ -1773,3 +1775,4 @@ document.addEventListener('DOMContentLoaded', function() {
             .replace(/'/g, "&#039;");
     }
 });
+ 
