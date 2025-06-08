@@ -5,16 +5,14 @@
 
 # Arquivos de cache
 /cache/
+/temp/
 *.cache
+*.tmp
+*.log
 
 # Arquivos de configuração local
 config.local.php
 config.php
-
-# Arquivos temporários
-/tmp/
-*.tmp
-*.log
 
 # Dependências (se estiver usando composer)
 /vendor/
